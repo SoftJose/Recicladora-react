@@ -1,0 +1,30 @@
+/* ==============================
+   RESET GLOBAL PARA DASHBOARD
+============================== */
+
+:root {
+  --primary-green: #27ae60;
+  --light-green: #ebf7f0;
+  --text-dark: #2c3e50;
+  --text-light: #7f8c8d;
+  --border-color: #edf2f7;
+  --bg-white: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #f5f7f6;
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}

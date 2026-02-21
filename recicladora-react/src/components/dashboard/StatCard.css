@@ -1,0 +1,13 @@
+.stat-card {
+  border-left: 5px solid #28a745;
+}
+
+.stat-card__icon {
+  font-size: 2rem;
+  color: #28a745;
+}
+
+.stat-card__value {
+  font-weight: bold;
+  color: #198754;
+}

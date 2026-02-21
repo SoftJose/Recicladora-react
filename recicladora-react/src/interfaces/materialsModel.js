@@ -1,0 +1,15 @@
+export const MaterialModel = {
+    id: 0,
+    code: "",
+    materialName: "",
+    description: "",
+    stock: 0,
+    price: 0,
+    categoryId: null,
+    userId: null,
+    userName: "",
+    categoryName: "",
+    location: "",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+}

@@ -1,0 +1,41 @@
+/* Bloque Header */
+.header__nav {
+  border-bottom: 2px solid #198754;
+  height: 60px;
+}
+
+.header__sidebar {
+  background-color: #f1f8f1;
+  transition: transform 0.3s ease-in-out;
+}
+
+.header__sidebar-header {
+  background-color: #198754;
+  color: white;
+}
+
+/* Elementos de Navegación */
+.nav-link {
+  transition: all 0.3s ease;
+  padding: 10px 15px;
+  border-radius: 5px;
+}
+
+.nav-link:hover {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: #198754 !important;
+  transform: translateX(5px);
+}
+
+/* Animación de entrada para el contenido principal */
+.main-content {
+  animation: fadeIn 0.5s ease-in-out;
+  padding: 20px;
+  margin-top: 60px; /* Para que no lo tape el fixed-top */
+  min-height: calc(100vh - 60px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

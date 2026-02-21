@@ -1,0 +1,146 @@
+/* Bloque Principal: El contenedor que centra todo */
+.entity-layout {
+    padding-top: 80px; /* Espacio para que el Navbar fijo no lo tape */
+    padding-bottom: 20px;
+    background-color: #f8f9fa; /* Un gris muy claro de fondo */
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow: hidden; /* Eliminar scroll */
+    display: flex;
+    flex-direction: column;
+}
+
+/* El contenedor tipo Card blanca */
+.entity-layout__container {
+    border-top: 6px solid #198754; /* El verde de tu marca Ymir */
+    transition: transform 0.3s ease;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin: 0 20px;
+}
+
+/* Título de la sección */
+.entity-layout__title {
+    color: #198754;
+    letter-spacing: 1.5px;
+    font-size: 1.75rem;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.entity-layout__title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: #198754;
+    border-radius: 2px;
+}
+
+/* Cabecera: Buscador y Botón */
+.entity-layout__header {
+    background-color: rgba(25, 135, 84, 0.03);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px !important;
+}
+
+/* Wrapper del input de búsqueda */
+.search-wrapper {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 3;
+    font-size: 1rem;
+}
+
+/* Inputs de búsqueda */
+.search-input {
+    border: 2px solid #e9ecef;
+    padding: 12px 15px 12px 40px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #fff;
+}
+
+.search-input:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.1);
+    background-color: #fff;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+}
+
+/* Botón de agregar mejorado */
+.btn-add {
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: none;
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.2);
+}
+
+.btn-add:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3);
+    background: linear-gradient(135deg, #157347 0%, #1aa085 100%);
+}
+
+/* Área del contenido (donde va la tabla) */
+.entity-layout__body {
+    margin-top: 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+
+/* Estilos para las tablas dentro del layout */
+.entity-layout__body .table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.entity-layout__body .table thead {
+    background-color: #198754;
+    color: white;
+}
+
+/* Scroll personalizado para tablas largas */
+.table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #198754;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #146c43;
+}

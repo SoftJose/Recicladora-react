@@ -1,0 +1,54 @@
+/* ===============================
+   TABLE – Estilo Dashboard Pro
+================================ */
+
+.category-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #ffffff;
+}
+
+/* HEADER */
+.category-table thead th {
+  background: linear-gradient(180deg, #f4f7f6 0%, #eef2f1 100%);
+  color: #2f3e46;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Redondeo del header */
+.category-table thead th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.category-table thead th:last-child {
+  border-top-right-radius: 12px;
+}
+
+/* BODY */
+.category-table tbody tr {
+  transition: background-color 0.25s ease;
+}
+
+.category-table tbody tr:hover {
+  background-color: #f8fdf9;
+}
+
+.category-table td {
+  padding: 1.1rem 1.5rem;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+  background-color: #ffffff;
+}
+
+/* Última fila sin borde */
+.category-table tbody tr:last-child td {
+  border-bottom: none;
+}
