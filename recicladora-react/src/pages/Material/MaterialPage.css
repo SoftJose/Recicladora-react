@@ -1,0 +1,316 @@
+/* BLOQUE: La página de materiales */
+.material-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* ==================================
+   BLOQUE: reporte de materiales
+================================== */
+.material-report {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 1rem 1.25rem;
+}
+
+.material-report__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.material-report__title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.material-report__title i {
+    color: #0d6efd;
+    font-size: 1.1rem;
+}
+
+.material-report__title h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.material-report__filters {
+    margin-top: 0.25rem;
+}
+
+.material-report__stats {
+    margin-top: 0.25rem;
+}
+
+.material-report__stat {
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.material-report__stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.material-report__stat-value {
+    display: block;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #198754;
+}
+
+.material-report__actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 0.75rem;
+}
+.material-report__actions .btn-success {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    border: none;
+}
+
+.material-report__hint {
+    margin-top: 0.4rem;
+}
+
+/* ELEMENTO: contenedor de tabla */
+.material-page__table-wrapper {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+}
+
+/* ELEMENTO: tabla */
+.material-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Encabezado */
+.material-table__header {
+    background: linear-gradient(135deg, #0d6efd 0%, #20c997 100%);
+    color: white;
+}
+
+.material-table__th {
+    padding: 1.2rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+.material-table__tr {
+    border-bottom: 1px solid #f1f3f4;
+    transition: background 0.2s;
+}
+
+.material-table__tr:hover {
+    background-color: #f6fbff;
+}
+
+.material-table__td {
+    padding: 1rem 1.2rem;
+    vertical-align: middle;
+}
+
+.material-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 110, 253, 0.10);
+    color: #0d6efd;
+}
+
+.material-stock {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    background: #e7f5ff;
+    color: #0b5ed7;
+}
+
+.material-stock.is-empty {
+    background: #ffe3e3;
+    color: #b02a37;
+}
+
+.material-empty-state {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    border: 1px dashed #dee2e6;
+    color: #6c757d;
+}
+
+/* ==================================
+   BOTONES DE ACCIÓN
+================================== */
+
+.btn-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    border: none;
+    border-radius: 10px;
+    padding: 0.45rem 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* EDITAR */
+.btn-action.edit {
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.btn-action.edit:hover {
+    background: #0d6efd;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ELIMINAR */
+.btn-action.delete {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.btn-action.delete:hover {
+    background: #dc3545;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* Scroll interno de tabla (para no depender del zoom) */
+.material-page__table-scroll {
+    max-height: 520px;
+    overflow: auto;
+}
+
+.material-page__pagination {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #edf2f7;
+    background: #ffffff;
+}
+
+@media (max-width: 768px) {
+
+    .material-report {
+        padding: 1rem;
+        box-shadow: none;
+    }
+
+    .material-report__actions {
+        justify-content: stretch;
+    }
+
+    .material-report__actions .btn {
+        width: 100%;
+    }
+
+    .material-page__table-wrapper {
+        box-shadow: none;
+        border: none;
+        background: transparent;
+    }
+
+    .material-table,
+    .material-table thead {
+        display: none;
+    }
+
+    .material-table__body {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .material-table__body tr {
+        display: block;
+        background: #fff;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e9ecef;
+    }
+
+    .material-table__body td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border: none;
+        font-size: 0.9rem;
+    }
+
+    .material-table__body td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #0d6efd;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .material-table__body td[data-label="Acciones"] {
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+    }
+
+    .btn-group {
+        width: 100%;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        padding: 0.4rem 0.6rem;
+    }
+
+    .material-empty-state {
+        margin-top: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .material-page__table-scroll {
+        max-height: none;
+        overflow: visible;
+    }
+
+    .material-page__pagination {
+        padding: 0.5rem 0;
+        border-top: none;
+        background: transparent;
+    }
+}

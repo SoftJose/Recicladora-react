@@ -1,10 +1,14 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { ProtectedRoute, RoleProtectedRoute, PublicOnlyRoute } from "../components/auth/ProtectedRoute";
+import { PublicOnlyRoute, RoleProtectedRoute } from "../components/auth/ProtectedRoute";
 
 // Páginas (Asegúrate de que estas rutas sean correctas)
 import HomePage from "../pages/home/HomePage.jsx";
 import { LoginPage } from "../pages/login/LoginPage.jsx";
 import CategoryPage from "../pages/Category/CategoryPage.jsx";
+import ClientsPage from "../pages/Clients/ClientsPage.jsx";
+import MaterialPage from "../pages/Material/MaterialPage.jsx";
+import TransactionPage from "../pages/Transaction/TransactionPage.jsx";
+import TransactionDetailsPage from "../pages/Transaction/transactionDetailsPage.jsx";
 
 export const AppRoutes = () => {
     return (
@@ -21,45 +25,58 @@ export const AppRoutes = () => {
                 }
             />
 
-            {/* PROTEGIDAS GENERALES */}
-            {/* roles={["ADMIN"]}*/}
+            {/* PROTEGIDAS */}
             <Route
                 path="/categorias"
                 element={
-                    <PublicOnlyRoute>
+                    <RoleProtectedRoute roles={["ADMIN", "BODEGA"]}>
                         <CategoryPage />
-                    </PublicOnlyRoute>
+                    </RoleProtectedRoute>
                 }
             />
 
-            {/* PROTEGIDAS POR ROL (Usando DIVs temporales para que no falle) */}
-            {/* roles={["ADMIN"]}*/}
+            <Route
+                path="/clientes"
+                element={
+                    <RoleProtectedRoute roles={["ADMIN"]}>
+                        <ClientsPage />
+                    </RoleProtectedRoute>
+                }
+            />
+
             <Route
                 path="/usuarios"
                 element={
-                    <PublicOnlyRoute roles={["ADMIN"]}>
+                    <RoleProtectedRoute roles={["ADMIN"]}>
                         <div className="container mt-5"><h1>Gestión de Usuarios</h1></div>
-                    </PublicOnlyRoute>
+                    </RoleProtectedRoute>
                 }
             />
 
-            {/* roles={["ADMIN", "BODEGA"]}*/}
             <Route
                 path="/materiales"
                 element={
-                    <PublicOnlyRoute>
-                        <div className="container mt-5"><h1>Gestión de Materiales</h1></div>
-                    </PublicOnlyRoute>
+                    <RoleProtectedRoute roles={["ADMIN", "BODEGA"]}>
+                        <MaterialPage />
+                    </RoleProtectedRoute>
                 }
             />
 
-            {/* roles={["ADMIN", "VENDEDOR"]}*/}
             <Route
                 path="/ventas"
                 element={
-                    <PublicOnlyRoute >
-                        <div className="container mt-5"><h1>Facturación y Ventas</h1></div>
-                    </PublicOnlyRoute>
+                    <RoleProtectedRoute roles={["VENDEDOR"]}>
+                        <TransactionPage />
+                    </RoleProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/facturacion"
+                element={
+                    <RoleProtectedRoute roles={["VENDEDOR"]}>
+                        <TransactionDetailsPage />
+                    </RoleProtectedRoute>
                 }
             />
 

@@ -10,6 +10,39 @@ export const MaterialModel = {
     userName: "",
     categoryName: "",
     location: "",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: null,
+    updatedAt: null
+}
+
+export const MaterialMapper = {
+    toBackend(material) {
+        const payload = {
+            codigo: material.code,
+            nombreMaterial: material.materialName,
+            descripcion: material.description,
+            stock: material.stock,
+            precio: material.price,
+            categoriesId: material.categoryId,
+            usuarioId: material.userId,
+            ubicacion: material.location,
+            fechaIngreso: material.createdAt,
+        };
+        if (material.id) {
+            payload.id = material.id;
+        }
+        return payload;
+    },
+    fromBackend(dto) {
+        return {
+            id: dto.id,
+            code: dto.codigo,
+            materialName: dto.nombreMaterial,
+            description: dto.descripcion,
+            stock: dto.stock,
+            price: dto.precio,
+            categoryId: dto.categoriesId,
+            userId: dto.usuarioId,
+            location: dto.ubicacion,
+        }
+    }
 }

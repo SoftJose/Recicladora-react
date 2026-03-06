@@ -19,7 +19,7 @@
 
 body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  background-color: #f5f7f6;
+  background-color: #f0f2f5;
   color: var(--text-dark);
   min-height: 100vh;
 }

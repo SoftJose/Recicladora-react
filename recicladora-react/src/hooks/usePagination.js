@@ -1,46 +1,42 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from "react";
 
 export const usePagination = (data, itemsPerPage = 5) => {
     const [currentPage, setCurrentPage] = useState(1);
 
-    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const totalItems = Array.isArray(data) ? data.length : 0;
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     const paginatedData = useMemo(() => {
+        if (!Array.isArray(data)) return [];
+
         const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        return data.slice(startIndex, endIndex);
+        return data.slice(startIndex, startIndex + itemsPerPage);
     }, [data, currentPage, itemsPerPage]);
 
     const goToPage = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-        }
-    };
+        const p = Number(page);
+        if (!Number.isFinite(p)) return;
 
-    const nextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(prev => prev + 1);
-        }
+        const clamped = Math.min(Math.max(p, 1), totalPages);
+        setCurrentPage(clamped);
     };
-
-    const prevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(prev => prev - 1);
-        }
-    };
-
-    // Reset to page 1 when data changes (for search)
-    const resetPage = () => setCurrentPage(1);
 
     return {
         currentPage,
         totalPages,
         paginatedData,
         goToPage,
-        nextPage,
-        prevPage,
-        resetPage,
-        totalItems: data.length,
-        itemsPerPage
+        nextPage: () => goToPage(currentPage + 1),
+        prevPage: () => goToPage(currentPage - 1),
+        resetPage: () => setCurrentPage(1),
+        totalItems,
+        itemsPerPage,
     };
 };

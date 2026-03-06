@@ -1,13 +1,19 @@
-import {apiFetch} from "./api.js";
+import { apiFetch } from "./api.js";
+import { detailsMapper } from "../interfaces/transactionDetailsModel.js";
 
-export const DetailsService= {
+// OJO: API_URL en api.js ya incluye `/api`, por eso aquí NO se pone `/api`
+const BASE_URL = "/v1/detalles_facturas";
 
-    findAllDetails: () => apiFetch("/"),
+export const DetailsService = {
+    // 📌 Listar
+    async findAllDetails() {
+        const data = await apiFetch(`${BASE_URL}/`);
+        return (data || []).map(detailsMapper.fromBackend);
+    },
 
-    findByIdDetails: (idDetails) => apiFetch(`${idDetails}`),
-
-    exportPdfDetails: (idDetails) => apiFetch(`${idDetails}`),
-
-    create: (details) => apiFetch("/guardar",{method: "POST",
-        body: JSON.stringify(details)})
-}
+    // 📌 Buscar por ID
+    async findByIdDetails(idDetails) {
+        const data = await apiFetch(`${BASE_URL}/${idDetails}`);
+        return detailsMapper.fromBackend(data);
+    },
+};

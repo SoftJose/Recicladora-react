@@ -1,146 +1,207 @@
-/* Bloque Principal: El contenedor que centra todo */
+/* ===============================
+   ENTITY LAYOUT (BEM)
+================================ */
+
+/* ===============================
+   BLOQUE PRINCIPAL
+================================ */
 .entity-layout {
-    padding-top: 80px; /* Espacio para que el Navbar fijo no lo tape */
-    padding-bottom: 20px;
-    background-color: #f8f9fa; /* Un gris muy claro de fondo */
-    min-height: 100vh;
-    max-height: 100vh;
-    overflow: hidden; /* Eliminar scroll */
+    position: relative;
+    padding: 2.8rem;
+    min-height: calc(100vh - 70px);
+    background-color: transparent;
     display: flex;
-    flex-direction: column;
-}
-
-/* El contenedor tipo Card blanca */
-.entity-layout__container {
-    border-top: 6px solid #198754; /* El verde de tu marca Ymir */
-    transition: transform 0.3s ease;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
     overflow: hidden;
-    margin: 0 20px;
 }
 
-/* Título de la sección */
+/* Fondo general gris */
+body {
+    background-color: #f0f2f5;
+}
+
+/* ===============================
+   FONDO GENERAL – MARCA DE AGUA
+================================ */
+/* ===============================
+   FONDO MARCA DE AGUA (CARD BLANCO)
+================================ */
+.entity-layout__container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("../../../assets/img/logo_principal.png");
+    background-repeat: no-repeat;
+    background-position: center -10%;
+    background-size: 270px;
+    opacity: 0.06;              /* visible pero elegante */
+    pointer-events: none;
+    z-index: 0;
+    transform: rotate(-15deg);
+}
+
+/* Asegura que TODO el contenido esté encima */
+.entity-layout__container > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===============================
+   CONTENEDOR BLANCO
+================================ */
+.entity-layout__container {
+    position: relative;
+    background: #ffffff;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    z-index: 1;                 /* 👈 sobre la imagen */
+    max-width: 1200px;
+    width: 100%;
+}
+
+/* ===============================
+   CONTENEDOR DEL TÍTULO
+================================ */
+.entity-layout__header-title {
+    border-bottom: 2px solid rgba(25, 135, 84, 0.1);
+    padding-bottom: 1.5rem;
+    margin-bottom: 0;
+}
+
+.entity-layout__title-icon-container {
+    background: rgba(25, 135, 84, 0.1);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
 .entity-layout__title {
     color: #198754;
-    letter-spacing: 1.5px;
-    font-size: 1.75rem;
+    letter-spacing: 1px;
+    font-size: 1.5rem;
     position: relative;
-    padding-bottom: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 0;
 }
 
 .entity-layout__title::after {
     content: "";
     position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
+    bottom: -1.6rem;
+    left: 0;
+    width: 80px;
+    height: 4px;
     background-color: #198754;
-    border-radius: 2px;
+    border-radius: 10px;
 }
 
-/* Cabecera: Buscador y Botón */
-.entity-layout__header {
-    background-color: rgba(25, 135, 84, 0.03);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 25px !important;
+/* ===============================
+   CONTROLES (BUSCADOR + BOTÓN)
+================================ */
+.entity-layout__controls {
+    position: relative;
+    z-index: 1;
+    background-color: transparent !important;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f0f2f5;
 }
 
-/* Wrapper del input de búsqueda */
+/* Buscador */
 .search-wrapper {
     position: relative;
 }
 
 .search-icon {
     position: absolute;
-    left: 12px;
+    left: 14px;
     top: 50%;
     transform: translateY(-50%);
     color: #6c757d;
     z-index: 3;
-    font-size: 1rem;
 }
 
-/* Inputs de búsqueda */
 .search-input {
-    border: 2px solid #e9ecef;
-    padding: 12px 15px 12px 40px;
+    padding: 10px 15px 10px 40px;
     border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    background-color: #fff;
+    border: 1px solid #ced4da;
+    transition: all 0.2s ease;
 }
 
 .search-input:focus {
     border-color: #198754;
-    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.1);
-    background-color: #fff;
-    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
 }
 
-.search-input::placeholder {
-    color: #adb5bd;
-    font-style: italic;
-}
-
-/* Botón de agregar mejorado */
+/* Botón agregar */
 .btn-add {
     border-radius: 8px;
-    padding: 12px 20px;
+    padding: 10px 20px;
     font-weight: 600;
-    font-size: 0.95rem;
-    border: none;
     background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    border: none;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.2);
 }
 
 .btn-add:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3);
-    background: linear-gradient(135deg, #157347 0%, #1aa085 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
 }
 
-/* Área del contenido (donde va la tabla) */
+/* ===============================
+   CUERPO DEL CONTENIDO
+================================ */
 .entity-layout__body {
-    margin-top: 10px;
+    position: relative;
+    z-index: 1;
+    padding: 1.5rem 2rem 2rem;
+    background-color: transparent !important;
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
 }
 
 
-/* Estilos para las tablas dentro del layout */
-.entity-layout__body .table {
-    border-radius: 8px;
-    overflow: hidden;
+/* Scroll interno opcional (para módulos grandes como Facturación) */
+.entity-layout__body--scroll {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-.entity-layout__body .table thead {
-    background-color: #198754;
-    color: white;
+/* ===============================
+   RESPONSIVE – MÓVIL
+================================ */
+@media (max-width: 768px) {
+    .entity-layout {
+        padding: 1.2rem;
+    }
+
+    .entity-layout__container::before {
+        background-size: 260px;
+        opacity: 0.04;
+    }
+
+    .entity-layout__controls {
+        padding: 1rem 1.2rem;
+    }
+
+    .entity-layout__body {
+        padding: 1.2rem;
+    }
+
+    .entity-layout__title {
+        font-size: 1.2rem;
+    }
 }
 
-/* Scroll personalizado para tablas largas */
-.table-responsive::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.table-responsive::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.table-responsive::-webkit-scrollbar-thumb {
-    background: #198754;
-    border-radius: 10px;
-}
-
-.table-responsive::-webkit-scrollbar-thumb:hover {
-    background: #146c43;
+.entity-layout__custom-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
 }

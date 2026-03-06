@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import StatCard from "../../components/dashboard/StatCard.jsx";
 import "./HomePage.css";
 
 const HomePage = () => {
-  const [stats, setStats] = useState({ materiales: 0, clientes: 0, ventas: 0 });
-
     useEffect(() => {
         const fetchStats = async () => {
-            // Al ser asíncrono, React ya no lo ve como una "cascada síncrona"
-            setStats({ materiales: 128, clientes: 54, ventas: 230 });
+            // stats pendiente de integrar (por ahora no se usa en UI)
+            // setStats({ materiales: 128, clientes: 54, ventas: 230 });
         };
         fetchStats();
     }, []);

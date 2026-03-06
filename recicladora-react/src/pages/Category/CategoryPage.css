@@ -1,54 +1,259 @@
-/* ===============================
-   TABLE – Estilo Dashboard Pro
-================================ */
+/* ==================================
+   BLOQUE: Página de categorías
+================================== */
+
+.category-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* ==================================
+   CONTENEDOR TABLA
+================================== */
+
+.category-page__table-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+}
+
+/* ==================================
+   TABLA
+================================== */
 
 .category-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background-color: #ffffff;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 
 /* HEADER */
-.category-table thead th {
-  background: linear-gradient(180deg, #f4f7f6 0%, #eef2f1 100%);
-  color: #2f3e46;
-  font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+
+.category-table__header {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    color: white;
 }
 
-/* Redondeo del header */
-.category-table thead th:first-child {
-  border-top-left-radius: 12px;
+.category-table__th {
+    padding: 1.2rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: left;
+    font-weight: 600;
 }
 
-.category-table thead th:last-child {
-  border-top-right-radius: 12px;
+/* FILAS */
+
+.category-table__tr {
+    border-bottom: 1px solid #f1f3f4;
+    transition: all 0.2s ease;
+    height: 64px;
 }
 
-/* BODY */
-.category-table tbody tr {
-  transition: background-color 0.25s ease;
+.category-table__tr:hover {
+    background-color: #f4fffa;
 }
 
-.category-table tbody tr:hover {
-  background-color: #f8fdf9;
+.category-table__td {
+    padding: 1rem 1.2rem;
+    vertical-align: middle;
 }
 
-.category-table td {
-  padding: 1.1rem 1.5rem;
-  font-size: 0.95rem;
-  color: var(--text-dark);
-  border-bottom: 1px solid var(--border-color);
-  vertical-align: middle;
-  background-color: #ffffff;
+/* ==================================
+   ICONO CATEGORÍA
+================================== */
+
+.category-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(25, 135, 84, 0.10);
+    color: #198754;
+    flex-shrink: 0;
 }
 
-/* Última fila sin borde */
-.category-table tbody tr:last-child td {
-  border-bottom: none;
+/* ==================================
+   BADGE ESTADO
+================================== */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1;
+    min-height: 32px;
+}
+
+.status-badge--active {
+    background-color: #d1f2d6;
+    color: #155724;
+}
+
+.status-badge--inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* ==================================
+   BOTONES DE ACCIÓN (IGUAL A MATERIALES)
+================================== */
+
+.btn-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    border: none;
+    border-radius: 10px;
+    padding: 0.45rem 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    min-height: 32px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* EDITAR */
+.btn-action.edit {
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.btn-action.edit:hover {
+    background: #0d6efd;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ELIMINAR */
+.btn-action.delete {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.btn-action.delete:hover {
+    background: #dc3545;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ==================================
+   EMPTY STATE
+================================== */
+
+.category-empty-state {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    border: 1px dashed #dee2e6;
+    color: #6c757d;
+}
+
+/* ==================================
+   SCROLL Y PAGINACIÓN
+================================== */
+
+/* Scroll interno de tabla */
+.category-page__table-scroll {
+    max-height: 520px;
+    overflow: auto;
+}
+
+.category-page__pagination {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #edf2f7;
+    background: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .category-page__table-scroll {
+        max-height: none;
+        overflow: visible;
+    }
+
+    .category-page__pagination {
+        padding: 0.5rem 0;
+        border-top: none;
+        background: transparent;
+    }
+}
+
+/* ==================================
+   RESPONSIVE
+================================== */
+
+@media (max-width: 768px) {
+
+    .category-page__table-wrapper {
+        box-shadow: none;
+        border: none;
+        background: transparent;
+    }
+
+    .category-table,
+    .category-table thead {
+        display: none;
+    }
+
+    .category-table__body {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .category-table__body tr {
+        display: block;
+        background: #fff;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e9ecef;
+    }
+
+    .category-table__body td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border: none;
+        font-size: 0.9rem;
+    }
+
+    .category-table__body td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #198754;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .category-table__body td[data-label="Acciones"] {
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+    }
+
+    .category-empty-state {
+        margin-top: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
 }

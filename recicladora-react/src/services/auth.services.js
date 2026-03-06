@@ -1,12 +1,31 @@
 import { apiFetch } from "./api";
 
-/**
- * Claves únicas de almacenamiento
- */
 const STORAGE_KEYS = {
     ACCESS_TOKEN: "accessToken",
-    REFRESH_TOKEN: "refreshToken",
     USER: "user",
+};
+
+const normalizeRole = (r) => {
+    const role = String(r || "").trim().toUpperCase();
+    if (!role) return "";
+    return role.startsWith("ROLE_") ? role : `ROLE_${role}`;
+};
+
+const decodeJwtPayload = (token) => {
+    try {
+        const base64Url = token.split(".")[1];
+        if (!base64Url) return null;
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split("")
+                .map((c) => `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`)
+                .join("")
+        );
+        return JSON.parse(jsonPayload);
+    } catch {
+        return null;
+    }
 };
 
 export const AuthService = {
@@ -33,41 +52,26 @@ export const AuthService = {
             throw new Error("Respuesta inválida del servidor");
         }
 
-        // 🔐 GUARDAR SESIÓN (AQUÍ VA TODO)
         localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(worker));
 
-        return {
-            token: accessToken,
-            user: worker,
-            refreshToken,
-        };
+        return { token: accessToken, refreshToken: refreshToken ?? null, user: worker };
     },
 
     // =========================
     // REFRESH TOKEN
     // =========================
     async refreshToken() {
-        const refreshToken = this.getRefreshToken();
-
-        if (!refreshToken) {
-            this.clearAuth();
-            throw new Error("No hay refresh token");
-        }
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) throw new Error("No hay refreshToken");
 
         const response = await apiFetch("/v1/trabajadores/refresh", {
             method: "POST",
             body: JSON.stringify({ refreshToken }),
         });
 
-        const newAccessToken = response.token || response.accessToken;
-
-        if (!newAccessToken) {
-            this.clearAuth();
-            throw new Error("No se pudo refrescar el token");
-        }
-
+        const newAccessToken = response.accessToken || response.token;
         this.setToken(newAccessToken);
         return newAccessToken;
     },
@@ -80,7 +84,7 @@ export const AuthService = {
     },
 
     // =========================
-    // STORAGE HELPERS
+    // STORAGE
     // =========================
     getToken() {
         return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
@@ -92,30 +96,29 @@ export const AuthService = {
         }
     },
 
-    // Agregado: establece el refresh token para uso desde AuthProvider
-    setRefreshToken(token) {
-        if (token) {
-            localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, token);
-        }
-    },
-
-    getRefreshToken() {
-        return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-    },
-
     getUser() {
         const user = localStorage.getItem(STORAGE_KEYS.USER);
         return user ? JSON.parse(user) : null;
     },
 
-    setUser(user) {
-        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-    },
 
     clearAuth() {
         Object.values(STORAGE_KEYS).forEach(key =>
             localStorage.removeItem(key)
         );
+        localStorage.removeItem("refreshToken");
+    },
+
+    setUser(user) {
+        if (user) {
+            localStorage.setItem("user", JSON.stringify(user))
+        }
+    },
+
+    setRefreshToken(refreshToken) {
+        if (refreshToken) {
+            localStorage.setItem("refreshToken", refreshToken)
+        }
     },
 
     // =========================
@@ -140,33 +143,61 @@ export const AuthService = {
     // =========================
     getUserRoles() {
         const user = this.getUser();
-        if (!user) return [];
+        const token = this.getToken();
 
-        if (user.roleName) {
-            return [user.roleName.toUpperCase()];
+        // 1) Preferimos roles del token si existen
+        if (token) {
+            const payload = decodeJwtPayload(token);
+            const rawRoles = payload?.roles || payload?.authorities || payload?.scope;
+
+            if (Array.isArray(rawRoles)) {
+                return rawRoles.map(normalizeRole).filter(Boolean);
+            }
+
+            if (typeof rawRoles === "string") {
+                return rawRoles
+                    .split(/[\s,]+/)
+                    .map(normalizeRole)
+                    .filter(Boolean);
+            }
         }
 
-        if (user.roleId) {
-            const roleMap = {
-                1: "ADMIN",
-                2: "VENDEDOR",
-                3: "BODEGA",
-            };
-            return [roleMap[user.roleId]];
+        // 2) Fallback: worker DTO en localStorage
+        if (!user) return [];
+
+        // Algunos DTOs traen `roleName` o `roles`
+        if (user.roleName) {
+            return [normalizeRole(user.roleName)].filter(Boolean);
+        }
+
+        if (Array.isArray(user.roles)) {
+            return user.roles.map(normalizeRole).filter(Boolean);
+        }
+
+        // 3) Fallback: intentar leer una estructura común fkRoles.name
+        if (user.fkRoles?.name) {
+            return [normalizeRole(user.fkRoles.name)].filter(Boolean);
         }
 
         return [];
     },
 
     hasRole(role) {
-        return this.getUserRoles().includes(role);
+        const target = normalizeRole(role);
+        return this.getUserRoles().includes(target);
     },
 
     hasAnyRole(roles) {
-        return roles.some(r => this.getUserRoles().includes(r));
+        const targets = (Array.isArray(roles) ? roles : []).map(normalizeRole).filter(Boolean);
+        if (targets.length === 0) return true;
+        const userRoles = this.getUserRoles();
+        return targets.some(r => userRoles.includes(r));
     },
 
     hasAllRoles(roles) {
-        return roles.every(r => this.getUserRoles().includes(r));
+        const targets = (Array.isArray(roles) ? roles : []).map(normalizeRole).filter(Boolean);
+        if (targets.length === 0) return true;
+        const userRoles = this.getUserRoles();
+        return targets.every(r => userRoles.includes(r));
     },
 };

@@ -1,16 +1,17 @@
 import {apiFetch} from "./api.js";
 
-export const ClientService= {
+const BASE_URL = "/v1/clientes";
 
-    findAllClients:() => apiFetch("/"),
+export const ClientService = {
 
-    findByIdClient:(clientsId) => apiFetch(`${clientsId}`),
+    findAllClients: () => apiFetch(`${BASE_URL}/`),
 
-    createClient:(client) => apiFetch("/guardar",{method: "POST",
-        body: JSON.stringify(client),}),
+    findByIdClient: (clientsId) =>
+        apiFetch(`${BASE_URL}/${clientsId}`),
 
-    exportPdf:(pdf) => apiFetch(`${pdf}`),
-
-
-
-}
+    createClient: (client) =>
+        apiFetch(`${BASE_URL}/guardar`, {
+            method: "POST",
+            body: JSON.stringify(client),
+        }),
+};

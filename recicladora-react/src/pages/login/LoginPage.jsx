@@ -1,5 +1,6 @@
 import { useLoginForm } from "../../hooks/useLoginForm";
 import { Link } from "react-router-dom";
+import loginImagen from "../../assets/img/login_imagen.jpg";
 import "./login.css";
 
 export const LoginPage = () => {
@@ -13,89 +14,102 @@ export const LoginPage = () => {
         handleSubmit
     } = useLoginForm();
 
-    // Lógica para validación visual (sustituye al is-invalid de Angular)
-    const isInvalid = (field) => !credentials[field] && error.includes("campos");
+    const isInvalid = (field) =>
+        !credentials[field] && error?.toLowerCase().includes("campos");
 
     return (
-        <div className="login-container container-fluid vh-100 d-flex justify-content-center align-items-center">
-            {/* Partículas de fondo con BEM */}
-            <div className="login-container__particles">
-                <div className="login-container__circle login-container__circle--top-right"></div>
-                <div className="login-container__circle login-container__circle--middle-left"></div>
-                <div className="login-container__circle login-container__circle--bottom-right"></div>
-            </div>
+        <div className="login p-5">
+            <div className="login__wrapper">
 
-            <div className="card login-card">
-                <div className="card-body login-card__body">
-                    <h2 className="text-center mb-4 login-card__title">Bienvenido</h2>
-
-                    <form onSubmit={handleSubmit} className="login-form">
-                        <div className="mb-4">
-                            <label htmlFor="username" className="form-label login-form__label">Usuario</label>
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                placeholder="Ingresa tu usuario"
-                                className={`form-control login-form__input ${isInvalid('username') ? 'is-invalid' : ''}`}
-                                value={credentials.username}
-                                onChange={handleChange}
-                                disabled={isLoading}
-                            />
-                            {isInvalid('username') && (
-                                <div className="invalid-feedback">Por favor ingresa un usuario válido.</div>
-                            )}
-                        </div>
-
-                        <div className="mb-4">
-                            <label htmlFor="password" className="form-label login-form__label">Contraseña</label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Ingresa tu contraseña"
-                                className={`form-control login-form__input ${isInvalid('password') ? 'is-invalid' : ''}`}
-                                value={credentials.password}
-                                onChange={handleChange}
-                                disabled={isLoading}
-                            />
-                            {isInvalid('password') && (
-                                <div className="invalid-feedback">La contraseña es requerida.</div>
-                            )}
-                        </div>
-
-                        <div className="mb-4 form-check">
-                            <input
-                                type="checkbox"
-                                className="form-check-input login-form__checkbox"
-                                id="rememberMe"
-                                checked={rememberMe}
-                                onChange={(e) => setRememberMe(e.target.checked)}
-                            />
-                            <label className="form-check-label" htmlFor="rememberMe">Recordarme</label>
-                        </div>
-
-                        <button
-                            type="submit"
-                            className="btn btn-primary w-100 login-form__button"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? "Cargando..." : "Ingresar"}
-                        </button>
-                    </form>
-
-                    {error && (
-                        <div className="alert alert-danger mt-4 login-card__alert" role="alert">
-                            {error}
-                        </div>
-                    )}
-
-                    <div className="mt-4 text-center">
-                        <Link to="/recuperar-password" title="Recuperar" className="text-decoration-none login-card__link">
-                            ¿Olvidaste tu contraseña?
-                        </Link>
+                {/* PANEL IZQUIERDO (IMAGEN) */}
+                <div
+                    className="login__image"
+                    style={{ backgroundImage: `url(${loginImagen})` }}
+                >
+                    <div className="login__overlay">
+                        <h1 className="login__brand">
+                            <i className="bi bi-recycle me-2"></i>
+                            Recicladora Ymir
+                        </h1>
+                        <p className="login__slogan">
+                            Gestión responsable para un futuro sostenible
+                        </p>
                     </div>
                 </div>
+
+                {/* PANEL DERECHO (FORMULARIO) */}
+                <div className="login__form-container">
+                    <div className="login__card">
+                        <h2 className="login__title">Bienvenido</h2>
+
+
+                        <form onSubmit={handleSubmit} className="login__form">
+                            <div className="form-group mb-3">
+                                <label className="login__label">Usuario</label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    className={`form-control login__input ${
+                                        isInvalid("username") ? "is-invalid" : ""
+                                    }`}
+                                    value={credentials.username}
+                                    onChange={handleChange}
+                                    disabled={isLoading}
+                                    placeholder="Ingresa tu usuario"
+                                />
+                            </div>
+
+                            <div className="form-group mb-3">
+                                <label className="login__label">Contraseña</label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    className={`form-control login__input ${
+                                        isInvalid("password") ? "is-invalid" : ""
+                                    }`}
+                                    value={credentials.password}
+                                    onChange={handleChange}
+                                    disabled={isLoading}
+                                    placeholder="Ingresa tu contraseña"
+                                />
+                            </div>
+
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                                <div className="form-check">
+                                    <input
+                                        type="checkbox"
+                                        className="form-check-input"
+                                        id="rememberMe"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
+                                    />
+                                    <label className="form-check-label" htmlFor="rememberMe">
+                                        Recordarme
+                                    </label>
+                                </div>
+
+                                <Link to="/recuperar-password" className="login__forgot">
+                                    ¿Olvidaste tu contraseña?
+                                </Link>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="btn login__button w-100"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? "Cargando..." : "Ingresar"}
+                            </button>
+
+                            {error && (
+                                <div className="alert alert-danger mt-3 text-center">
+                                    {error}
+                                </div>
+                            )}
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </div>
     );

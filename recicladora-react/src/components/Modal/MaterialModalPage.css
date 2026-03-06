@@ -1,0 +1,92 @@
+/* Modal Material (estilos propios) */
+
+.material-modal__backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 2000;
+}
+
+.material-modal__dialog {
+    width: 100%;
+    max-width: 920px;
+}
+
+.material-modal__content {
+    width: 100%;
+}
+
+.material-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 1.4rem;
+    border-bottom: 1px solid #eef1f4;
+}
+
+.material-modal__close {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #2b2b2b;
+    font-size: 28px;
+    line-height: 1;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+}
+
+.material-modal__close:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.material-modal__body {
+    padding: 1.2rem 1.4rem;
+    max-height: min(70vh, 680px);
+    overflow: auto;
+}
+
+.material-modal__footer {
+    border-top: 1px solid #eef1f4;
+    padding: 1rem 1.4rem 1.3rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+}
+
+.material-modal__content.modal-glass {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(233, 236, 239, 0.9);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(10px);
+}
+
+.material-modal__content .modal-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0d6efd 0%, #20c997 100%);
+    color: #fff;
+}
+
+.material-modal__content .form-label {
+    font-weight: 600;
+    color: #344054;
+}
+
+.material-modal__content .form-control,
+.material-modal__content .form-select {
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 0.65rem 0.85rem;
+}

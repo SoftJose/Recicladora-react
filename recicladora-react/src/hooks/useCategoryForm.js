@@ -36,7 +36,7 @@ export const useCategoryForm = () => {
         return true;
     };
 
-    // 📌 Guardar (crear / editar)
+    // Guardar (crear / editar)
     const submitForm = async (e) => {
         e.preventDefault();
 
