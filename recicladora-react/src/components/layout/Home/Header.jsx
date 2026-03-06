@@ -40,11 +40,10 @@ function Header() {
     return (
         <header className="header shadow-sm">
             <nav className="header__navbar navbar fixed-top">
-                <div className="container-fluid d-flex align-items-center">
-
+                <div className="container-fluid header__container">
                     {/* Botón Hamburguesa */}
                     <button
-                        className="navbar-toggler me-2"
+                        className="navbar-toggler me-2 header__toggler"
                         type="button"
                         data-bs-toggle="offcanvas"
                         data-bs-target="#offcanvasNavbar"
@@ -54,7 +53,7 @@ function Header() {
                         <span className="navbar-toggler-icon"></span>
                     </button>
 
-                    <div className="d-flex align-items-center w-75">
+                    <div className="header__content">
                         <div className="header__brand">
                             <i className="bi bi-recycle header__brand-icon"></i>
                             <h1 className="header__title">
@@ -65,20 +64,22 @@ function Header() {
 
                         {/* LOGIN DESKTOP */}
                         {!isAuthenticated && (
-                            <div className="ms-auto header__login-desktop">
+                            <div className="header__login-desktop">
                                 <Link
                                     to="/login"
-                                    className="btn btn-outline-light rounded d-inline-flex align-items-center gap-2"
+                                    className="btn btn-sm btn-outline-light rounded d-inline-flex align-items-center gap-2 header__login-btn"
+                                    onClick={(e) => navTo(e, "/login")}
+                                    aria-label="Iniciar sesión"
                                 >
                                     <i className="bi bi-box-arrow-in-right"></i>
-                                    <span>Login</span>
+                                    <span className="header__login-btn-text">Iniciar sesión</span>
                                 </Link>
                             </div>
                         )}
 
                         {/* USER MENU DESKTOP */}
                         {isAuthenticated && (
-                            <div className="ms-auto">
+                            <div className="header__user-desktop">
                                 <UserMenu user={user} onLogout={logout}/>
                             </div>
                         )}
@@ -182,7 +183,7 @@ function Header() {
                                             <Link
                                                 to="/login"
                                                 className="btn btn-success w-100"
-                                                data-bs-dismiss="offcanvas"
+                                                onClick={(e) => navTo(e, "/login")}
                                             >
                                                 <i className="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión
                                             </Link>
@@ -200,3 +201,4 @@ function Header() {
 }
 
 export default Header;
+

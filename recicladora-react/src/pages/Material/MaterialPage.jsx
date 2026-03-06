@@ -8,6 +8,7 @@ import { MaterialModel } from "../../interfaces/materialsModel";
 import { useCategoriesContext } from "../../context/Category/useCategoriesContext";
 import { materialsService } from "../../services/materialsService";
 import { alert } from "../../utils/alert";
+import { canMaterialMutate } from "../../utils/permissions";
 import "./MaterialPage.css";
 import materialIcon from "../../assets/img/logistica-de-materiales.png";
 
@@ -88,7 +89,7 @@ const MaterialPage = () => {
 
     useEffect(() => {
         resetPage();
-    }, [searchTerm]);
+    }, [searchTerm, resetPage]);
 
     // Pre-generar el código para el próximo material
     useEffect(() => {
@@ -142,13 +143,15 @@ const MaterialPage = () => {
         }
     };
 
+    const canMutate = canMaterialMutate();
+
     return (
         <EntityLayout
             title="Gestión de Materiales"
             searchTerm={searchTerm}
             onSearch={setSearchTerm}
-            addBtnText="Nuevo Material"
-            onAddClick={handleOpenModal}
+            addBtnText={canMutate ? "Nuevo Material" : null}
+            onAddClick={canMutate ? handleOpenModal : undefined}
             headerIcon={materialIcon}
             bodyScroll
             bodyMaxHeight="calc(100vh - 210px)"
@@ -166,7 +169,9 @@ const MaterialPage = () => {
                                     <th className="material-table__th">Ubicación</th>
                                     <th className="material-table__th">Stock</th>
                                     <th className="material-table__th">Precio</th>
-                                    <th className="material-table__th text-center">Acciones</th>
+                                    {canMutate && (
+                                      <th className="material-table__th text-center">Acciones</th>
+                                    )}
                                 </tr>
                             </thead>
                             <tbody className="material-table__body">
@@ -204,7 +209,8 @@ const MaterialPage = () => {
                                                   {typeof m.price === "number" ? m.price.toFixed(2) : Number(m.price || 0).toFixed(2)}
                                               </td>
 
-                                              <td data-label="Acciones" className="material-table__td text-center">
+                                              {canMutate && (
+                                                <td data-label="Acciones" className="material-table__td text-center">
                                                   <div className="btn-group">
                                                       <button
                                                           className="btn-action edit"
@@ -221,7 +227,8 @@ const MaterialPage = () => {
                                                           <i className="bi bi-trash3"></i>
                                                       </button>
                                                   </div>
-                                              </td>
+                                                </td>
+                                              )}
                                           </tr>
                                       ))
                                     : null}
@@ -336,6 +343,7 @@ const MaterialPage = () => {
                     handleInputChange={handleInputChange}
                     handleSubmit={handleSubmit}
                     categories={categories || []}
+                    canMutate={canMutate}
                 />
             </div>
         </EntityLayout>

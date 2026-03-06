@@ -39,15 +39,19 @@ const clearAuthData = () => {
 export const apiFetch = async (endpoint, options = {}) => {
     const token = localStorage.getItem("accessToken")
 
+    const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    }
+
+    if (options.headers) {
+        Object.assign(headers, options.headers)
+    }
+
     const config = {
         ...options,
-        // IMPORTANTE: no usamos cookies en este proyecto (refreshToken viene en JSON)
-        // credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
-            ...(options.headers || {}),
-        },
+        credentials: "include",
+        headers,
     }
 
     const url = `${API_URL}${endpoint}`
@@ -66,7 +70,7 @@ export const apiFetch = async (endpoint, options = {}) => {
             return await handleUnauthorized(endpoint, options)
         }
 
-        throw new Error(`Error ${response.status}`)
+        await handleApiError(response)
     } catch (err) {
         console.error("API error:", err)
         throw err
@@ -78,13 +82,18 @@ export const apiFetch = async (endpoint, options = {}) => {
 export const apiFetchText = async (endpoint, options = {}) => {
     const token = localStorage.getItem("accessToken");
 
+    const headers = {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    if (options.headers) {
+        Object.assign(headers, options.headers);
+    }
+
     const config = {
-        // credentials: "include",
         ...options,
-        headers: {
-            ...(token && { Authorization: `Bearer ${token}` }),
-            ...(options.headers || {}),
-        },
+        credentials: "include",
+        headers,
     };
 
     try {
@@ -100,12 +109,14 @@ export const apiFetchText = async (endpoint, options = {}) => {
 
         if (response.status === 401 && !isAuthEndpoint) {
             await handleUnauthorized(endpoint, options);
+            const retryHeaders = {};
+            if (options.headers) Object.assign(retryHeaders, options.headers);
+            const at = localStorage.getItem("accessToken");
+            if (at) retryHeaders.Authorization = `Bearer ${at}`;
+
             const retry = await fetch(`${API_URL}${endpoint}`, {
                 ...config,
-                headers: {
-                    ...(localStorage.getItem("accessToken") && { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }),
-                    ...(options.headers || {}),
-                }
+                headers: retryHeaders,
             });
             if (retry.ok) return await retry.text();
             await handleApiError(retry);
@@ -160,7 +171,7 @@ const handleApiError = async (response) => {
     try {
         const contentType = response.headers.get("content-type");
 
-        if (contentType && contentType.includes("application/json")) {
+        if (contentType?.includes("application/json")) {
             const errorData = await response.json();
             errorMessage = errorData.message || errorData.error || errorData.detail || errorMessage;
         } else {
@@ -208,32 +219,20 @@ const handleApiError = async (response) => {
  * Maneja errores 401 intentando refrescar el token
  */
 const handleUnauthorized = async (endpoint, originalOptions) => {
-    const refreshToken = localStorage.getItem("refreshToken")
-
-    // Si no hay refreshToken, no intentamos refrescar (evita bucles)
-    if (!refreshToken) {
-        clearAuthData()
-        onTokenRefreshed(null)
-        const err = new Error("Sesión expirada")
-        err.code = "SESSION_EXPIRED"
-        throw err
-    }
-
+    // Si ya hay refresh en progreso, nos colgamos a la cola
     if (isRefreshing) {
         return new Promise((resolve, reject) => {
             subscribeTokenRefresh((newToken) => {
-                if (!newToken) {
+                if (newToken === null) {
                     const err = new Error("Sesión expirada")
                     err.code = "SESSION_EXPIRED"
                     reject(err)
                     return
                 }
-
-                originalOptions.headers = {
-                    ...(originalOptions.headers || {}),
-                    Authorization: `Bearer ${newToken}`,
-                }
-
+                const h = {};
+                if (originalOptions.headers) Object.assign(h, originalOptions.headers);
+                if (newToken) h.Authorization = `Bearer ${newToken}`;
+                originalOptions.headers = h;
                 resolve(apiFetch(endpoint, originalOptions))
             })
         })
@@ -242,73 +241,40 @@ const handleUnauthorized = async (endpoint, originalOptions) => {
     isRefreshing = true
 
     try {
+        // Cookie-based refresh (sin body). Backend debe leer refresh token desde HttpOnly cookie.
         const response = await fetch(`${API_URL}/v1/trabajadores/refresh`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ refreshToken }),
         })
 
-        if (!response.ok) throw new Error("Refresh falló")
-
-        const data = await response.json()
-        const newToken = data.accessToken || data.token
-
-        if (!newToken) throw new Error("Refresh falló")
-
-        localStorage.setItem("accessToken", newToken)
-        onTokenRefreshed(newToken)
-
-        originalOptions.headers = {
-            ...(originalOptions.headers || {}),
-            Authorization: `Bearer ${newToken}`,
+        if (!response.ok) {
+            clearAuthData()
+            onTokenRefreshed(null)
+            const err = new Error("Sesión expirada")
+            err.code = "SESSION_EXPIRED"
+            throw err
         }
 
+        const data = await response.json().catch(() => ({}))
+        const newToken = data.accessToken || data.token || null
+
+        // Si el backend también devuelve accessToken, lo guardamos para compatibilidad
+        if (newToken) {
+            localStorage.setItem("accessToken", newToken)
+        }
+
+        onTokenRefreshed(newToken)
+
+        const h2 = {};
+        if (originalOptions.headers) Object.assign(h2, originalOptions.headers);
+        if (newToken) h2.Authorization = `Bearer ${newToken}`;
+        originalOptions.headers = h2;
+
         return await apiFetch(endpoint, originalOptions)
-    } catch (err) {
-        clearAuthData()
-        onTokenRefreshed(null)
-        const e = new Error("Sesión expirada")
-        e.code = "SESSION_EXPIRED"
-        throw e
     } finally {
         isRefreshing = false
     }
 }
-
-
-/**
- * Métodos HTTP específicos para mayor comodidad
- */
-export const apiGet = (endpoint, options = {}) => {
-    return apiFetch(endpoint, { ...options, method: "GET" });
-};
-
-export const apiPost = (endpoint, data, options = {}) => {
-    return apiFetch(endpoint, {
-        ...options,
-        method: "POST",
-        body: JSON.stringify(data),
-    });
-};
-
-export const apiPut = (endpoint, data, options = {}) => {
-    return apiFetch(endpoint, {
-        ...options,
-        method: "PUT",
-        body: JSON.stringify(data),
-    });
-};
-
-export const apiPatch = (endpoint, data, options = {}) => {
-    return apiFetch(endpoint, {
-        ...options,
-        method: "PATCH",
-        body: JSON.stringify(data),
-    });
-};
-
-export const apiDelete = (endpoint, options = {}) => {
-    return apiFetch(endpoint, { ...options, method: "DELETE" });
-};

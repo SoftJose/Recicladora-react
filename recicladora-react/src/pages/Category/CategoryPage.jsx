@@ -8,6 +8,7 @@ import Pagination from "../../components/Pagination/Pagination";
 import { CategoryModel } from "../../interfaces/category";
 import "./CategoryPage.css";
 import categoryIcon from "../../assets/img/papelera-de-reciclaje.png";
+import { canCategoryMutate } from "../../utils/permissions";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -71,13 +72,15 @@ const CategoryPage = () => {
     setIsModalOpen(false);
   };
 
+  const canMutate = canCategoryMutate();
+
   return (
     <EntityLayout
       title="Gestión de Categorías"
       searchTerm={searchTerm}
       onSearch={setSearchTerm}
-      addBtnText="Nueva Categoría"
-      onAddClick={handleOpenModal}
+      addBtnText={canMutate ? "Nueva Categoría" : null}
+      onAddClick={canMutate ? handleOpenModal : undefined}
       headerIcon={categoryIcon}
       bodyScroll
       bodyMaxHeight="calc(100vh - 210px)"
@@ -91,7 +94,9 @@ const CategoryPage = () => {
                 <th className="category-table__th">Material</th>
                 <th className="category-table__th">Descripción</th>
                 <th className="category-table__th">Estado</th>
-                <th className="category-table__th text-center">Acciones</th>
+                {canMutate && (
+                  <th className="category-table__th text-center">Acciones</th>
+                )}
               </tr>
               </thead>
 
@@ -119,28 +124,29 @@ const CategoryPage = () => {
                       </span>
                     </td>
 
-                    <td data-label="Acciones" className="category-table__td text-center">
-                      <div className="btn-group">
-                        <button
-                          className="btn-action edit"
-                          onClick={() => handleEditClick(cat)}
-                          title="Editar categoría"
-                          type="button"
-                        >
-                          <i className="bi bi-pencil-square"></i>
-                        </button>
+                    {canMutate && (
+                      <td data-label="Acciones" className="category-table__td text-center">
+                        <div className="btn-group">
+                          <button
+                            className="btn-action edit"
+                            onClick={() => handleEditClick(cat)}
+                            title="Editar categoría"
+                            type="button"
+                          >
+                            <i className="bi bi-pencil-square"></i>
+                          </button>
 
-                        <button
-                          className="btn-action delete"
-                          onClick={() => deleteCategory(cat.id)}
-                          title="Eliminar categoría"
-                          type="button"
-                        >
-                          <i className="bi bi-trash3"></i>
-                        </button>
-                      </div>
-                    </td>
-
+                          <button
+                            className="btn-action delete"
+                            onClick={() => deleteCategory(cat.id)}
+                            title="Eliminar categoría"
+                            type="button"
+                          >
+                            <i className="bi bi-trash3"></i>
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               ) : null}

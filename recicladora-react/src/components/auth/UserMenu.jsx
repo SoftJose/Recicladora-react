@@ -1,5 +1,6 @@
-import PropTypes from "prop-types"
-import "./UserMenu.css"
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
+import "./UserMenu.css";
 
 /**
  * Componente de menú de usuario
@@ -42,14 +43,14 @@ export const UserMenu = ({ user, onLogout }) => {
                 </li>
                 <li><hr className="dropdown-divider" /></li>
                 <li>
-                    <a className="dropdown-item" href="/profile">
-                        <i className="bi bi-person me-2"></i>
+                    <Link className="dropdown-item" to="/profile">
+                        <i className="bi bi-person me-2"></i>{" "}
                         Mi Perfil
-                    </a>
+                    </Link>
                 </li>
                 <li>
                     <a className="dropdown-item" href="/settings">
-                        <i className="bi bi-gear me-2"></i>
+                        <i className="bi bi-gear me-2"></i>{" "}
                         Configuración
                     </a>
                 </li>
@@ -59,7 +60,7 @@ export const UserMenu = ({ user, onLogout }) => {
                         className="dropdown-item text-danger"
                         onClick={onLogout}
                     >
-                        <i className="bi bi-box-arrow-right me-2"></i>
+                        <i className="bi bi-box-arrow-right me-2"></i>{" "}
                         Cerrar Sesión
                     </button>
                 </li>
@@ -74,4 +75,3 @@ UserMenu.propTypes = {
 };
 
 export default UserMenu;
-

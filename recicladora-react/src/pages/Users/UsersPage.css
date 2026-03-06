@@ -1,0 +1,25 @@
+/* ===============================
+   USERS PAGE (BEM)
+================================ */
+
+.users-page {
+  width: 100%;
+}
+
+.users-page__table-wrap {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(25, 135, 84, 0.12);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.users-page__table {
+  margin: 0;
+}
+
+.users-page__table th,
+.users-page__table td {
+  vertical-align: middle;
+}
+

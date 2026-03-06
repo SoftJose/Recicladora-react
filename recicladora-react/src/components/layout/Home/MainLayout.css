@@ -4,6 +4,18 @@
   min-height: 100vh;
 }
 
+:root {
+  /* Alto del header fixed-top; se ajusta en móvil */
+  --header-height: 72px;
+}
+
+/* En móvil el header puede crecer a 2 líneas */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 96px;
+  }
+}
+
 .layout {
   background-color: #f8f9fa;
   display: flex;
@@ -18,10 +30,10 @@
   flex-direction: column;
   background-color: transparent;
   padding: 0;
+  /* 👇 clave: no ocultar contenido bajo el header fixed-top */
+  padding-top: var(--header-height);
   animation: fadeIn 0.6s ease-in-out;
 }
-
-
 
 @keyframes fadeIn {
   from {

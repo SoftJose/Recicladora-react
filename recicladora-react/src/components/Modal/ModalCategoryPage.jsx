@@ -1,5 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
 import "./CategoryModalPage.css";
+import { canCategoryMutate } from "../../utils/permissions";
 
 const CategoryModal = ({
     isOpen,
@@ -9,6 +11,8 @@ const CategoryModal = ({
     handleInputChange,
     handleSubmit,
 }) => {
+    const canMutate = useMemo(() => canCategoryMutate(), []);
+
     useEffect(() => {
         if (!isOpen) return;
 
@@ -30,12 +34,15 @@ const CategoryModal = ({
 
     if (!isOpen) return null;
 
-    const onBackdropClick = () => onClose?.();
-    const stop = (e) => e.stopPropagation();
-
     return (
-        <div className="category-modal__backdrop" onMouseDown={onBackdropClick}>
-            <div className="category-modal__dialog" role="dialog" aria-modal="true" onMouseDown={stop}>
+        <div className="category-modal__backdrop">
+            <button
+              type="button"
+              className="category-modal__backdrop-btn"
+              aria-label="Cerrar"
+              onClick={onClose}
+            />
+            <dialog className="category-modal__dialog" open aria-modal="true">
                 <div className="category-modal__content modal-glass">
                     {/* HEADER */}
                     <div className="category-modal__header">
@@ -63,8 +70,9 @@ const CategoryModal = ({
                         <div className="modal-body">
                             {/* NOMBRE */}
                             <div className="form-group">
-                                <label className="form-label">Nombre</label>
+                                <label className="form-label" htmlFor="category-name">Nombre</label>
                                 <input
+                                    id="category-name"
                                     type="text"
                                     name="name"
                                     className="form-control"
@@ -73,13 +81,15 @@ const CategoryModal = ({
                                     placeholder="Ej: Plástico, Papel, Vidrio"
                                     required
                                     autoFocus
+                                    disabled={!canMutate}
                                 />
                             </div>
 
                             {/* DESCRIPCIÓN */}
                             <div className="form-group">
-                                <label className="form-label">Descripción</label>
+                                <label className="form-label" htmlFor="category-description">Descripción</label>
                                 <textarea
+                                    id="category-description"
                                     name="description"
                                     className="form-control"
                                     rows="3"
@@ -87,17 +97,20 @@ const CategoryModal = ({
                                     onChange={handleInputChange}
                                     placeholder="Describe el tipo de residuo"
                                     required
+                                    disabled={!canMutate}
                                 />
                             </div>
 
                             {/* ESTADO */}
                             <div className="form-switch-wrapper">
-                                <label className="switch-label">
+                                <label className="switch-label" htmlFor="category-status">
                                     <input
+                                        id="category-status"
                                         type="checkbox"
                                         name="status"
                                         checked={formData.status === "active" || formData.status === true}
                                         onChange={handleInputChange}
+                                        disabled={!canMutate}
                                     />
                                     <span className="switch-slider"></span>
                                     <span className="switch-text">Categoría activa</span>
@@ -112,18 +125,33 @@ const CategoryModal = ({
                                 className="btn btn-outline-secondary"
                                 onClick={onClose}
                             >
-                                Cancelar
+                                {canMutate ? "Cancelar" : "Cerrar"}
                             </button>
-                            <button type="submit" className="btn btn-success">
-                                {isEditing ? "Actualizar" : "Guardar"}
-                            </button>
+                            {canMutate && (
+                                <button type="submit" className="btn btn-success">
+                                    {isEditing ? "Actualizar" : "Guardar"}
+                                </button>
+                            )}
                         </div>
                     </form>
 
                 </div>
-            </div>
+            </dialog>
         </div>
     );
+};
+
+CategoryModal.propTypes = {
+  isOpen: PropTypes.bool,
+  onClose: PropTypes.func,
+  formData: PropTypes.shape({
+    name: PropTypes.string,
+    description: PropTypes.string,
+    status: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
+  }).isRequired,
+  isEditing: PropTypes.bool.isRequired,
+  handleInputChange: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
 };
 
 export default CategoryModal;

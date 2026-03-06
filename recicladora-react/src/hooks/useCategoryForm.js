@@ -3,6 +3,7 @@ import { useCategoriesContext } from "../context/Category/useCategoriesContext";
 import { categoryService } from "../services/categoryService";
 import { CategoryModel } from "../interfaces/category";
 import { alert } from "../utils/alert";
+import { canCategoryMutate } from "../utils/permissions";
 
 export const useCategoryForm = () => {
     const { categories, loadCategories } = useCategoriesContext();
@@ -46,9 +47,19 @@ export const useCategoryForm = () => {
 
         try {
             if (isEditing) {
+                if (!canCategoryMutate()) {
+                    alert.error("No tienes permisos para editar categorías.");
+                    return;
+                }
+
                 await categoryService.updateCategory(formData.id, formData);
                 alert.success("Categoría actualizada con éxito", "Éxito");
             } else {
+                if (!canCategoryMutate()) {
+                    alert.error("No tienes permisos para modificar categorías.");
+                    return;
+                }
+
                 await categoryService.createCategory(formData);
                 alert.success("Categoría creada con éxito", "Éxito");
             }
@@ -73,6 +84,11 @@ export const useCategoryForm = () => {
     // 📌 Eliminar
     const deleteCategory = async (id) => {
         try {
+            if (!canCategoryMutate()) {
+                alert.error("No tienes permisos para eliminar categorías.");
+                return;
+            }
+
             const result = await alert.confirm(
                 "¿Eliminar categoría?",
                 "Esta acción no se puede deshacer"

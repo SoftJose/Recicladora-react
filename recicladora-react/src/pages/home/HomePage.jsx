@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import StatCard from "../../components/dashboard/StatCard.jsx";
 import "./HomePage.css";
+import logoPrincipal from "../../assets/img/logo_principal.png";
 
 const HomePage = () => {
     useEffect(() => {
@@ -23,7 +23,7 @@ const HomePage = () => {
             {/* Contenido centrado */}
             <div className="hero-content text-center">
                 <img
-                    src="/../src/assets/img/logo_principal.png"
+                    src={logoPrincipal}
                     alt="Logo principal"
                     className="hero-logo animate__animated animate__fadeInDown"
                 />

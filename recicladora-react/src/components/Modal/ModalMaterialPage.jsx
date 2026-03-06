@@ -10,6 +10,7 @@ const MaterialModal = ({
     handleInputChange,
     handleSubmit,
     categories = [],
+    canMutate = true,
 }) => {
     useEffect(() => {
         if (!isOpen) return;
@@ -30,16 +31,25 @@ const MaterialModal = ({
 
     if (!isOpen) return null;
 
-    const onBackdropClick = () => onClose?.();
-    const stop = (e) => e.stopPropagation();
+    const onCancel = (e) => {
+        e.preventDefault();
+        onClose?.();
+    };
 
     return (
-        <div className="material-modal__backdrop" onClick={onBackdropClick}>
-            <div
+        <div className="material-modal__backdrop">
+            <button
+                type="button"
+                className="material-modal__backdrop-btn"
+                aria-label="Cerrar"
+                onClick={onClose}
+            />
+
+            <dialog
                 className="material-modal__dialog"
-                role="dialog"
+                open
                 aria-modal="true"
-                onClick={stop}
+                onCancel={onCancel}
             >
                 <div className="material-modal__content modal-glass">
                     {/* HEADER */}
@@ -82,6 +92,7 @@ const MaterialModal = ({
                                         value={formData.code ?? ""}
                                         onChange={handleInputChange}
                                         placeholder="Ej: MAT-0001"
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -100,6 +111,7 @@ const MaterialModal = ({
                                         value={formData.location ?? ""}
                                         onChange={handleInputChange}
                                         placeholder="Ej: Bodega A - Estante 3"
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -119,6 +131,7 @@ const MaterialModal = ({
                                         onChange={handleInputChange}
                                         placeholder="Ej: Plástico PET"
                                         required
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -138,6 +151,7 @@ const MaterialModal = ({
                                         onChange={handleInputChange}
                                         placeholder="Describe el material"
                                         required
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -158,6 +172,7 @@ const MaterialModal = ({
                                         min="0"
                                         step="1"
                                         required
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -178,6 +193,7 @@ const MaterialModal = ({
                                         min="0"
                                         step="0.01"
                                         required
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -194,6 +210,7 @@ const MaterialModal = ({
                                         className="form-select"
                                         value={formData.categoryId ?? ""}
                                         onChange={handleInputChange}
+                                        disabled={!canMutate}
                                     >
                                         <option value="">Sin categoría</option>
                                         {categories.map((c) => (
@@ -213,15 +230,17 @@ const MaterialModal = ({
                                 className="btn btn-outline-secondary"
                                 onClick={onClose}
                             >
-                                Cancelar
+                                {canMutate ? "Cancelar" : "Cerrar"}
                             </button>
-                            <button type="submit" className="btn btn-success">
-                                {isEditing ? "Actualizar" : "Guardar"}
-                            </button>
+                            {canMutate && (
+                                <button type="submit" className="btn btn-success">
+                                    {isEditing ? "Actualizar" : "Guardar"}
+                                </button>
+                            )}
                         </div>
                     </form>
                 </div>
-            </div>
+            </dialog>
         </div>
     );
 };
@@ -253,6 +272,7 @@ MaterialModal.propTypes = {
             name: PropTypes.string.isRequired,
         })
     ),
+    canMutate: PropTypes.bool,
 };
 
 export default MaterialModal;

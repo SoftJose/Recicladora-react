@@ -3,6 +3,7 @@ import {useState} from "react";
 import {PersonModel} from "../interfaces/personModel.js";
 import {alert} from "../utils/alert.js";
 import {ClientService as clientsService} from "../services/clientsServices.js";
+import { canClientCreate, canClientEdit } from "../utils/permissions";
 
 export const useClientsForms = () => {
     const { clients, loadClients } = useClientsContext();
@@ -61,10 +62,18 @@ export const useClientsForms = () => {
 
         try {
             if (isEditing){
+                if (!canClientEdit()) {
+                    alert.error("No tienes permisos para editar clientes", "Error");
+                    return;
+                }
                 await clientsService.updateClient(formData.id, formData);
                 alert.success("Cliente actualizado con éxito", "Éxito");
             }
             else{
+                if (!canClientCreate()) {
+                    alert.error("No tienes permisos para crear clientes", "Error");
+                    return;
+                }
                 await clientsService.createClient(formData);
                 alert.success("Cliente Guardado con éxito", "Éxito");
             }

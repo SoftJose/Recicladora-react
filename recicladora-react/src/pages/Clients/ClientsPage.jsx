@@ -1,26 +1,16 @@
 import {useClientsForms} from "../../hooks/useClientsForms.js";
 import {useEffect, useState} from "react";
 import {usePagination} from "../../hooks/usePagination.js";
-import {PersonModel} from "../../interfaces/personModel.js";
 import EntityLayout from "../../components/layout/Entity/EntityLayout.jsx";
 import clientsIcon from "../../assets/img/gestion-de-clientes.png";
-import ClientsModal from "../../components/Modal/ModalClientsPage.jsx";
 import "./ClientsPage.css";
 
 const ClientsPage = () => {
     const {
         clients,
-        startEdit,
-        resetForm,
-        setFormData,
-        handleInputChange,
-        submitForm,
-        isEditing,
-        formData,
     } = useClientsForms();
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const q = searchTerm.toLowerCase();
     const safeClients = Array.isArray(clients) ? clients : [];
@@ -42,33 +32,13 @@ const ClientsPage = () => {
         resetPage();
     }, [searchTerm, resetPage]);
 
-    const handleOpenModal = () => {
-        resetForm();
-        setFormData({ ...PersonModel });
-        setIsModalOpen(true);
-    };
-
-    const handleEditClick = (client) => {
-        startEdit(client);
-        setIsModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-    };
-
-    const handleSubmit = async (e) => {
-        await submitForm(e);
-        setIsModalOpen(false);
-    };
-
     return (
         <EntityLayout
             title="Gestión de Clientes"
             searchTerm={searchTerm}
             onSearch={setSearchTerm}
-            addBtnText="Nuevo Cliente"
-            onAddClick={handleOpenModal}
+            addBtnText={null}
+            onAddClick={undefined}
             headerIcon={clientsIcon}
         >
             <div className="clients-page">
@@ -83,7 +53,6 @@ const ClientsPage = () => {
                             <th className="clients-table__th">Teléfono</th>
                             <th className="clients-table__th">Consumidor Final</th>
                             <th className="clients-table__th">Fecha de Registro</th>
-                            <th className="clients-table__th text-center">Acciones</th>
                         </tr>
                         </thead>
                         <tbody className="clients-table__body">
@@ -123,19 +92,6 @@ const ClientsPage = () => {
                                     <td data-label="Fecha de Registro" className="clients-table__td">
                                         {client.startDate ? new Date(client.startDate).toLocaleDateString() : '-'}
                                     </td>
-
-                                    <td data-label="Acciones" className="clients-table__td text-center">
-                                        <div className="btn-group" role="group">
-                                            <button
-                                                className="btn-action edit"
-                                                onClick={() => handleEditClick(client)}
-                                                title="Editar cliente"
-                                                type="button"
-                                            >
-                                                <i className="bi bi-pencil-square"></i>
-                                            </button>
-                                        </div>
-                                    </td>
                                 </tr>
                             ))
                         ) : null}
@@ -153,20 +109,11 @@ const ClientsPage = () => {
                         </p>
                         {!searchTerm && (
                             <small className="text-muted">
-                                Comienza agregando un nuevo cliente
+                                Los clientes se registran desde la pantalla de Ventas/Transacciones.
                             </small>
                         )}
                     </div>
                 )}
-
-                <ClientsModal
-                    isOpen={isModalOpen}
-                    onClose={handleCloseModal}
-                    formData={formData}
-                    isEditing={isEditing}
-                    handleInputChange={handleInputChange}
-                    handleSubmit={handleSubmit}
-                />
             </div>
         </EntityLayout>
     );

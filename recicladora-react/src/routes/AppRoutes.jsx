@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { PublicOnlyRoute, RoleProtectedRoute } from "../components/auth/ProtectedRoute";
+import { PublicOnlyRoute, RoleProtectedRoute, ProtectedRoute } from "../components/auth/ProtectedRoute";
 
 // Páginas (Asegúrate de que estas rutas sean correctas)
 import HomePage from "../pages/home/HomePage.jsx";
@@ -9,6 +9,8 @@ import ClientsPage from "../pages/Clients/ClientsPage.jsx";
 import MaterialPage from "../pages/Material/MaterialPage.jsx";
 import TransactionPage from "../pages/Transaction/TransactionPage.jsx";
 import TransactionDetailsPage from "../pages/Transaction/transactionDetailsPage.jsx";
+import UsersPage from "../pages/Users/UsersPage.jsx";
+import ProfilePage from "../pages/Profile/ProfilePage.jsx";
 
 export const AppRoutes = () => {
     return (
@@ -22,6 +24,16 @@ export const AppRoutes = () => {
                     <PublicOnlyRoute redirectTo="/">
                         <LoginPage />
                     </PublicOnlyRoute>
+                }
+            />
+
+            {/* PERFIL (cualquier autenticado) */}
+            <Route
+                path="/profile"
+                element={
+                    <ProtectedRoute>
+                        <ProfilePage />
+                    </ProtectedRoute>
                 }
             />
 
@@ -48,7 +60,7 @@ export const AppRoutes = () => {
                 path="/usuarios"
                 element={
                     <RoleProtectedRoute roles={["ADMIN"]}>
-                        <div className="container mt-5"><h1>Gestión de Usuarios</h1></div>
+                        <UsersPage />
                     </RoleProtectedRoute>
                 }
             />

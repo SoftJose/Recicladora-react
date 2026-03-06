@@ -3,6 +3,7 @@ import { useMaterialsContext } from "../context/Material/useMaterialsContext";
 import { materialsService } from "../services/materialsService";
 import { MaterialModel } from "../interfaces/materialsModel";
 import { alert } from "../utils/alert";
+import { canMaterialMutate } from "../utils/permissions";
 
 const isEmpty = (v) => v === null || v === undefined || v === "";
 
@@ -140,6 +141,11 @@ export const useMaterialForm = () => {
             };
 
             if (isEditing) {
+                if (!canMaterialMutate()) {
+                    alert.error("No tienes permisos para editar materiales.");
+                    return;
+                }
+
                 await materialsService.updateMaterial(payload.id, payload);
                 alert.success("Material actualizado con éxito", "Éxito");
             } else {
@@ -166,6 +172,11 @@ export const useMaterialForm = () => {
 
     const deleteMaterial = async (id) => {
         try {
+            if (!canMaterialMutate()) {
+                alert.error("No tienes permisos para eliminar materiales.");
+                return;
+            }
+
             const result = await alert.confirm(
                 "¿Eliminar material?",
                 "Esta acción no se puede deshacer"

@@ -8,6 +8,31 @@
   padding: 0 16px;
 }
 
+/* Nuevo layout del header */
+.header__container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.header__toggler {
+  flex: 0 0 auto;
+}
+
+.header__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header__login-desktop,
+.header__user-desktop {
+  margin-left: auto;
+}
+
 /* Botón hamburguesa */
 .navbar-toggler {
   border: none;
@@ -31,6 +56,7 @@
   justify-content: center;
   gap: 14px;
   width: 100%;
+  min-width: 0;
 }
 
 .header__brand-icon {
@@ -47,6 +73,8 @@
   margin: 0;
   text-align: center;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ===============================
@@ -112,21 +140,54 @@
   margin-top: 20px;
 }
 
+/* Botón de login (compacto) */
+.header__login-btn {
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
 /* ===============================
    RESPONSIVE
 ================================ */
 @media (max-width: 768px) {
+  .header__navbar {
+    height: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .header__main {
+    min-width: 0;
+  }
+
+  .header__container {
+    flex-wrap: nowrap;
+  }
+
+  .header__content {
+    gap: 8px;
+  }
+
+  .header__brand {
+    justify-content: flex-start;
+  }
+
   .header__title {
-    font-size: 1.2rem;
-    white-space: normal;
+    font-size: 0.95rem;
   }
 
   .header__brand-icon {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
 
   /* Oculta login en navbar */
   .header__login-desktop {
+    display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .header__login-btn-text {
     display: none;
   }
 }

@@ -31,7 +31,8 @@ body {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("../../../assets/img/logo_principal.png");
+    /* En producción se sirve desde /public/assets. En dev/build, la ruta relativa es resoluble. */
+    background-image: url("../../../../public/assets/logo_principal.png");
     background-repeat: no-repeat;
     background-position: center -10%;
     background-size: 270px;

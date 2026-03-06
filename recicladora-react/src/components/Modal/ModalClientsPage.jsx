@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import PropTypes from "prop-types";
 import "./ClientsModalPage.css";
 
 const ClientsModal = ({
@@ -8,6 +9,7 @@ const ClientsModal = ({
     isEditing,
     handleInputChange,
     handleSubmit,
+    canMutate = true,
 }) => {
     useEffect(() => {
         if (!isOpen) return;
@@ -29,12 +31,21 @@ const ClientsModal = ({
 
     if (!isOpen) return null;
 
-    const onBackdropClick = () => onClose?.();
-    const stop = (e) => e.stopPropagation();
+    const onCancel = (e) => {
+        e.preventDefault();
+        onClose?.();
+    };
 
     return (
-        <div className="clients-modal__backdrop" onMouseDown={onBackdropClick}>
-            <div className="clients-modal__dialog" role="dialog" aria-modal="true" onMouseDown={stop}>
+        <div className="clients-modal__backdrop">
+            <button
+              type="button"
+              className="clients-modal__backdrop-btn"
+              aria-label="Cerrar"
+              onClick={onClose}
+            />
+
+            <dialog className="clients-modal__dialog" open aria-modal="true" onCancel={onCancel}>
                 <div className="clients-modal__content">
                     <div className="clients-modal__header">
                         <div className="d-flex align-items-center gap-2">
@@ -71,6 +82,7 @@ const ClientsModal = ({
                                         placeholder="Cédula/RUC"
                                         required
                                         autoFocus
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -85,6 +97,7 @@ const ClientsModal = ({
                                         onChange={handleInputChange}
                                         placeholder="Nombres"
                                         required
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -99,6 +112,7 @@ const ClientsModal = ({
                                         onChange={handleInputChange}
                                         placeholder="Apellidos"
                                         required
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -113,6 +127,7 @@ const ClientsModal = ({
                                         onChange={handleInputChange}
                                         placeholder="Dirección"
                                         required
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -126,6 +141,7 @@ const ClientsModal = ({
                                         value={formData.email ?? ""}
                                         onChange={handleInputChange}
                                         placeholder="correo@dominio.com"
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -139,6 +155,7 @@ const ClientsModal = ({
                                         value={formData.phone ?? ""}
                                         onChange={handleInputChange}
                                         placeholder="0999999999"
+                                        disabled={!canMutate}
                                     />
                                 </div>
 
@@ -149,6 +166,7 @@ const ClientsModal = ({
                                             name="end_Consumer"
                                             checked={Boolean(formData.end_Consumer)}
                                             onChange={handleInputChange}
+                                            disabled={!canMutate}
                                         />
                                         <span className="switch-slider"></span>
                                         <span className="switch-text">Factura con datos (no consumidor final)</span>
@@ -159,18 +177,29 @@ const ClientsModal = ({
 
                         <div className="clients-modal__footer">
                             <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
-                                Cancelar
+                                {canMutate ? "Cancelar" : "Cerrar"}
                             </button>
-                            <button type="submit" className="btn btn-success">
-                                {isEditing ? "Actualizar" : "Guardar"}
-                            </button>
+                            {canMutate && (
+                                <button type="submit" className="btn btn-success">
+                                    {isEditing ? "Actualizar" : "Guardar"}
+                                </button>
+                            )}
                         </div>
                     </form>
                 </div>
-            </div>
+            </dialog>
         </div>
     );
 };
 
-export default ClientsModal;
+ClientsModal.propTypes = {
+  isOpen: PropTypes.bool,
+  onClose: PropTypes.func,
+  formData: PropTypes.object.isRequired,
+  isEditing: PropTypes.bool,
+  handleInputChange: PropTypes.func,
+  handleSubmit: PropTypes.func,
+  canMutate: PropTypes.bool,
+};
 
+export default ClientsModal;

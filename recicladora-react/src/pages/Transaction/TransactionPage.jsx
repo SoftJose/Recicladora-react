@@ -4,6 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./transactionPage.css";
 import MaterialAutocomplete from "../../components/Autocomplete/MaterialAutocomplete.jsx";
+import { canTransact as canTransactPerm } from "../../utils/permissions";
 
 const normalizeType = (raw) => {
     const t = String(raw || "").toUpperCase().trim();
@@ -77,6 +78,18 @@ const TransactionPage = () => {
     const actionLabel =
         transactionType === "COMPRA" ? "Realizar Compra" : "Realizar Venta";
 
+    const canTransact = canTransactPerm();
+
+    const buildStockBadge = (m) => {
+        const stock = Number(m?.stock ?? 0);
+        const isZero = stock <= 0;
+        return (
+            <span className={`badge ${isZero ? "bg-danger" : "bg-secondary"}`}>
+                Stock: {stock}
+            </span>
+        );
+    };
+
     return (
         <EntityLayout
             title={`Transacciones - ${pageTitle}`}
@@ -87,7 +100,7 @@ const TransactionPage = () => {
             <div className="invoice-page container my-4">
                 {/* Selector de tipo */}
                 <div className="d-flex justify-content-end mb-3">
-                    <div className="btn-group" role="group">
+                    <div className="btn-group">
                         <button
                             type="button"
                             className={`btn ${
@@ -124,8 +137,9 @@ const TransactionPage = () => {
                         <div className="invoice-card__body">
                             <form>
                                 <div className="mb-2">
-                                    <label className="form-label">Cédula</label>
+                                    <label className="form-label" htmlFor="tx-identify">Cédula</label>
                                     <input
+                                        id="tx-identify"
                                         type="text"
                                         className="form-control form-control-sm"
                                         name="identify"
@@ -139,8 +153,9 @@ const TransactionPage = () => {
                                 </div>
 
                                 <div className="mb-2">
-                                    <label className="form-label">Nombres</label>
+                                    <label className="form-label" htmlFor="tx-name">Nombres</label>
                                     <input
+                                        id="tx-name"
                                         type="text"
                                         className="form-control form-control-sm"
                                         name="name"
@@ -152,8 +167,9 @@ const TransactionPage = () => {
                                 </div>
 
                                 <div className="mb-2">
-                                    <label className="form-label">Apellidos</label>
+                                    <label className="form-label" htmlFor="tx-surnames">Apellidos</label>
                                     <input
+                                        id="tx-surnames"
                                         type="text"
                                         className="form-control form-control-sm"
                                         name="surnames"
@@ -165,8 +181,9 @@ const TransactionPage = () => {
                                 </div>
 
                                 <div className="mb-2">
-                                    <label className="form-label">Dirección</label>
+                                    <label className="form-label" htmlFor="tx-address">Dirección</label>
                                     <input
+                                        id="tx-address"
                                         type="text"
                                         className="form-control form-control-sm"
                                         name="address"
@@ -178,8 +195,9 @@ const TransactionPage = () => {
                                 </div>
 
                                 <div className="mb-2">
-                                    <label className="form-label">Correo</label>
+                                    <label className="form-label" htmlFor="tx-email">Correo</label>
                                     <input
+                                        id="tx-email"
                                         type="email"
                                         className="form-control form-control-sm"
                                         name="email"
@@ -191,8 +209,9 @@ const TransactionPage = () => {
                                 </div>
 
                                 <div className="mb-2">
-                                    <label className="form-label">Teléfono</label>
+                                    <label className="form-label" htmlFor="tx-phone">Teléfono</label>
                                     <input
+                                        id="tx-phone"
                                         type="text"
                                         className="form-control form-control-sm"
                                         name="phone"
@@ -245,10 +264,9 @@ const TransactionPage = () => {
                         <div className="invoice-card__body">
                             <div className="invoice-form-grid invoice-form-grid--2">
                                 <div>
-                                    <label className="form-label fw-bold text-danger">
-                                        VENDEDOR
-                                    </label>
+                                    <label className="form-label fw-bold text-danger" htmlFor="tx-seller">VENDEDOR</label>
                                     <input
+                                        id="tx-seller"
                                         type="text"
                                         className="form-control"
                                         value={sellerName}
@@ -257,10 +275,9 @@ const TransactionPage = () => {
                                 </div>
 
                                 <div>
-                                    <label className="form-label fw-bold">
-                                        Código
-                                    </label>
+                                    <label className="form-label fw-bold" htmlFor="tx-code">Código</label>
                                     <input
+                                        id="tx-code"
                                         type="text"
                                         className="form-control"
                                         value={invoiceCode}
@@ -280,9 +297,9 @@ const TransactionPage = () => {
                             {/* MATERIAL */}
                             <div className="invoice-form-grid mt-3">
                                 <div>
-                                    <label className="form-label fw-bold">
+                                    <span className="form-label fw-bold d-block">
                                         Material
-                                    </label>
+                                    </span>
 
                                     <MaterialAutocomplete
                                         items={filteredMaterials}
@@ -293,19 +310,12 @@ const TransactionPage = () => {
                                         }}
                                         placeholder="Buscar material por nombre o código"
                                         getSubLabel={(m) => {
-                                            const category = getCategoryNameById(m.categoryId) || (m.categoryId != null ? `Categoría #${m.categoryId}` : "");
+                                            const categoryName = getCategoryNameById(m.categoryId);
+                                            const category = categoryName || (m.categoryId ? `Categoría #${m.categoryId}` : "");
                                             const stock = Number(m.stock ?? 0);
                                             return `${category}${category ? " | " : ""}Stock: ${stock}`;
                                         }}
-                                        getBadge={(m) => {
-                                            const stock = Number(m.stock ?? 0);
-                                            const isZero = stock <= 0;
-                                            return (
-                                                <span className={`badge ${isZero ? "bg-danger" : "bg-secondary"}`}>
-                                                    Stock: {stock}
-                                                </span>
-                                            );
-                                        }}
+                                        getBadge={buildStockBadge}
                                         isItemDisabled={(m) => {
                                             if (transactionType !== "VENTA") return false;
                                             return Number(m.stock ?? 0) <= 0;
@@ -315,8 +325,9 @@ const TransactionPage = () => {
                                     {selectedMaterial && (
                                         <div className="invoice-form-grid invoice-form-grid--3 mt-3">
                                             <div>
-                                                <label className="form-label fw-bold">Categoría</label>
+                                                <label className="form-label fw-bold" htmlFor="tx-cat">Categoría</label>
                                                 <input
+                                                    id="tx-cat"
                                                     type="text"
                                                     className="form-control"
                                                     value={getCategoryNameById(selectedMaterial.categoryId) || String(selectedMaterial.categoryId ?? "")}
@@ -325,8 +336,9 @@ const TransactionPage = () => {
                                             </div>
 
                                             <div>
-                                                <label className="form-label fw-bold">Código</label>
+                                                <label className="form-label fw-bold" htmlFor="tx-mcode">Código</label>
                                                 <input
+                                                    id="tx-mcode"
                                                     type="text"
                                                     className="form-control"
                                                     value={selectedMaterial.code ?? ""}
@@ -335,8 +347,9 @@ const TransactionPage = () => {
                                             </div>
 
                                             <div>
-                                                <label className="form-label fw-bold">Stock</label>
+                                                <label className="form-label fw-bold" htmlFor="tx-stock">Stock</label>
                                                 <input
+                                                    id="tx-stock"
                                                     type="text"
                                                     className="form-control"
                                                     value={selectedMaterial.stock ?? 0}
@@ -351,10 +364,9 @@ const TransactionPage = () => {
                             {/* CANTIDAD Y PRECIO */}
                             <div className="invoice-form-grid invoice-form-grid--qty mt-3">
                                 <div>
-                                    <label className="form-label fw-bold">
-                                        Cantidad
-                                    </label>
+                                    <label className="form-label fw-bold" htmlFor="tx-qty">Cantidad</label>
                                     <input
+                                        id="tx-qty"
                                         type="number"
                                         className="form-control form-control-sm"
                                         value={quantity}
@@ -366,10 +378,9 @@ const TransactionPage = () => {
                                 </div>
 
                                 <div>
-                                    <label className="form-label fw-bold">
-                                        Precio
-                                    </label>
+                                    <label className="form-label fw-bold" htmlFor="tx-price">Precio</label>
                                     <input
+                                        id="tx-price"
                                         type="number"
                                         className="form-control form-control-sm"
                                         value={price}
@@ -391,6 +402,7 @@ const TransactionPage = () => {
                                     type="button"
                                     className="btn btn-outline-primary"
                                     onClick={addMaterialItem}
+                                    disabled={!canTransact}
                                 >
                                     Añadir Material
                                 </button>
@@ -418,7 +430,7 @@ const TransactionPage = () => {
                                                     <div className="d-flex flex-column">
                                                         <span>{it.materialName}</span>
                                                         <small className="text-muted">
-                                                            {it.categoryName || getCategoryNameById(it.categoryId) || (it.categoryId != null ? `Categoría #${it.categoryId}` : "")}
+                                                            {it.categoryName || getCategoryNameById(it.categoryId) || (it.categoryId ? `Categoría #${it.categoryId}` : "")}
                                                         </small>
                                                     </div>
                                                 </td>
@@ -431,17 +443,19 @@ const TransactionPage = () => {
                                                         2
                                                     )}
                                                 </td>
-                                                <td>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-sm btn-outline-danger"
-                                                        onClick={() =>
-                                                            removeItem(it.id)
-                                                        }
-                                                    >
-                                                        Quitar
-                                                    </button>
-                                                </td>
+                                                {canTransact ? (
+                                                    <td>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-outline-danger"
+                                                            onClick={() => removeItem(it.id)}
+                                                        >
+                                                            Quitar
+                                                        </button>
+                                                    </td>
+                                                ) : (
+                                                    <td></td>
+                                                )}
                                             </tr>
                                         ))
                                     ) : (
@@ -464,15 +478,21 @@ const TransactionPage = () => {
                                 </strong>
                             </div>
 
-                            <div className="d-flex justify-content-end mt-3">
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-success"
-                                    onClick={saveTransaction}
-                                >
-                                    {actionLabel}
-                                </button>
-                            </div>
+                            {canTransact ? (
+                                <div className="d-flex justify-content-end mt-3">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-success"
+                                        onClick={saveTransaction}
+                                    >
+                                        {actionLabel}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="alert alert-info mt-3">
+                                    Estás en modo solo lectura. Solo el rol VENDEDOR puede realizar ventas/compras.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

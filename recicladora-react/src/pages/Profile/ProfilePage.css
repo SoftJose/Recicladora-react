@@ -1,0 +1,55 @@
+/* ===============================
+   PROFILE PAGE (BEM)
+================================ */
+
+.profile-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.profile-page__card {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(25, 135, 84, 0.12);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.05);
+  padding: 1.4rem;
+}
+
+.profile-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.profile-page__title {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.profile-page__form {
+  margin-top: 0.75rem;
+}
+
+.profile-page__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+
+@media (max-width: 576px) {
+  .profile-page__card {
+    padding: 1.1rem;
+  }
+  .profile-page__actions {
+    justify-content: stretch;
+  }
+  .profile-page__actions .btn {
+    width: 100%;
+  }
+}
+
