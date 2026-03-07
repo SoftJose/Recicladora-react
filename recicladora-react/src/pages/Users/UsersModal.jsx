@@ -84,7 +84,7 @@ const UsersModal = ({ isOpen, onClose, onSubmit, editing, roles }) => {
       estado: Boolean(form.estado),
     };
 
-    // En edición, si password vacío no lo enviamos (evita reset involuntario)
+
     if (isEditing && !payload.password) {
       delete payload.password;
     }

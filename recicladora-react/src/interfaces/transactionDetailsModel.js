@@ -14,7 +14,7 @@ export const transactionDetailsModel = {
 export const detailsMapper = {
     toBackend(detail) {
         return {
-            // El backend espera estos nombres (según tu Transaction mapper)
+
             materialId: detail.materialId,
             cantidad: detail.quantity,
             precioUnitario: detail.price,
@@ -33,9 +33,7 @@ export const detailsMapper = {
             dto.totalLinea ??
             (quantity != null && price != null ? Number(quantity) * Number(price) : null);
 
-        // ---------
-        // Soporte para DTOs anidados (muy común en Spring/JPA)
-        // ---------
+
         const tx =
             dto.transaccion ??
             dto.transaction ??

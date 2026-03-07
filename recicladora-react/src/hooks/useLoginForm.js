@@ -54,17 +54,13 @@ export const useLoginForm = () => {
         setLoading(true);
 
         try {
-            // Log para debug (sin mostrar la contraseña completa)
-            console.log("Intentando login con usuario:", credentials.username);
-
             const response = await AuthService.login(credentials);
 
-            // Verificar que la respuesta tenga los datos necesarios
+
             if (!response?.token || !response?.user) {
                 throw new Error("Respuesta inválida del servidor");
             }
 
-            console.log("Login exitoso:", response.user.username);
 
             login(response.token, response.user, response.refreshToken);
 
@@ -72,7 +68,7 @@ export const useLoginForm = () => {
                 localStorage.setItem("rememberMe", "true");
             }
 
-            // Navegar después de login exitoso
+
             navigate(from, { replace: true });
         } catch (err) {
             console.error("Error en login:", err);
@@ -83,7 +79,7 @@ export const useLoginForm = () => {
         }
     };
 
-    // Exponemos solo lo que el UI necesita
+
     return {
         credentials,
         error,

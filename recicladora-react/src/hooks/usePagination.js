@@ -6,12 +6,11 @@ export const usePagination = (data, itemsPerPage = 5) => {
     const totalItems = Array.isArray(data) ? data.length : 0;
     const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
+    // Resetear página al cambiar data
     useEffect(() => {
-        if (currentPage > totalPages) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setCurrentPage(totalPages);
-        }
-    }, [currentPage, totalPages]);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCurrentPage(1);
+    }, [data]);
 
     const paginatedData = useMemo(() => {
         if (!Array.isArray(data)) return [];

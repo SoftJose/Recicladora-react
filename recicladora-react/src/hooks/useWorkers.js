@@ -2,10 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { WorkerServices } from "../services/worker.services";
 import { rolesServices } from "../services/rolesServices";
 
-// Contrato:
-// - Carga lista de workers + roles
-// - Expone CRUD
-// - Maneja loading/error
 
 export const useWorkers = () => {
   const [workers, setWorkers] = useState([]);

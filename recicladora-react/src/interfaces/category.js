@@ -2,8 +2,8 @@ export const CategoryModel = {
     id: null,
     name: "",
     description: "",
-    status: true,       // boolean, no string
-    createdAt: null,    // solo lectura
+    status: true,
+    createdAt: null,
 };
 
 

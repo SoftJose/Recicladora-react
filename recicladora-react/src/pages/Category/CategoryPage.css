@@ -1,17 +1,9 @@
-/* ==================================
-   BLOQUE: Página de categorías
-================================== */
-
 .category-page {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     width: 100%;
 }
-
-/* ==================================
-   CONTENEDOR TABLA
-================================== */
 
 .category-page__table-wrapper {
     background: #fff;
@@ -21,17 +13,11 @@
     overflow: hidden;
 }
 
-/* ==================================
-   TABLA
-================================== */
-
 .category-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
 }
-
-/* HEADER */
 
 .category-table__header {
     background: linear-gradient(135deg, #198754 0%, #20c997 100%);
@@ -46,8 +32,6 @@
     text-align: left;
     font-weight: 600;
 }
-
-/* FILAS */
 
 .category-table__tr {
     border-bottom: 1px solid #f1f3f4;
@@ -64,10 +48,6 @@
     vertical-align: middle;
 }
 
-/* ==================================
-   ICONO CATEGORÍA
-================================== */
-
 .category-icon {
     width: 36px;
     height: 36px;
@@ -79,10 +59,6 @@
     color: #198754;
     flex-shrink: 0;
 }
-
-/* ==================================
-   BADGE ESTADO
-================================== */
 
 .status-badge {
     display: inline-flex;
@@ -107,10 +83,6 @@
     color: #721c24;
 }
 
-/* ==================================
-   BOTONES DE ACCIÓN (IGUAL A MATERIALES)
-================================== */
-
 .btn-group {
     display: flex;
     align-items: center;
@@ -132,7 +104,6 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* EDITAR */
 .btn-action.edit {
     background: rgba(13, 110, 253, 0.1);
     color: #0d6efd;
@@ -144,7 +115,6 @@
     transform: translateY(-2px);
 }
 
-/* ELIMINAR */
 .btn-action.delete {
     background: rgba(220, 53, 69, 0.1);
     color: #dc3545;
@@ -156,10 +126,6 @@
     transform: translateY(-2px);
 }
 
-/* ==================================
-   EMPTY STATE
-================================== */
-
 .category-empty-state {
     background: #fff;
     border-radius: 12px;
@@ -169,11 +135,6 @@
     color: #6c757d;
 }
 
-/* ==================================
-   SCROLL Y PAGINACIÓN
-================================== */
-
-/* Scroll interno de tabla */
 .category-page__table-scroll {
     max-height: 520px;
     overflow: auto;
@@ -198,9 +159,6 @@
     }
 }
 
-/* ==================================
-   RESPONSIVE
-================================== */
 
 @media (max-width: 768px) {
 

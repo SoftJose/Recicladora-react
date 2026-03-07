@@ -16,7 +16,7 @@
     overflow: hidden;
 }
 
-/* Fondo general gris */
+
 body {
     background-color: #f0f2f5;
 }
@@ -24,25 +24,20 @@ body {
 /* ===============================
    FONDO GENERAL – MARCA DE AGUA
 ================================ */
-/* ===============================
-   FONDO MARCA DE AGUA (CARD BLANCO)
-================================ */
 .entity-layout__container::before {
     content: "";
     position: absolute;
     inset: 0;
-    /* En producción se sirve desde /public/assets. En dev/build, la ruta relativa es resoluble. */
     background-image: url("../../../../public/assets/logo_principal.png");
     background-repeat: no-repeat;
     background-position: center -10%;
     background-size: 270px;
-    opacity: 0.06;              /* visible pero elegante */
+    opacity: 0.06;
     pointer-events: none;
     z-index: 0;
     transform: rotate(-15deg);
 }
 
-/* Asegura que TODO el contenido esté encima */
 .entity-layout__container > * {
     position: relative;
     z-index: 1;
@@ -61,7 +56,7 @@ body {
     flex-direction: column;
     flex: 1;
     overflow: hidden;
-    z-index: 1;                 /* 👈 sobre la imagen */
+    z-index: 1;
     max-width: 1200px;
     width: 100%;
 }
@@ -121,9 +116,14 @@ body {
     position: relative;
 }
 
+.search-wrapper:focus-within .search-icon {
+    color: #198754;
+}
+
 .search-icon {
     position: absolute;
-    left: 14px;
+    right: 14px;
+    left: auto;
     top: 50%;
     transform: translateY(-50%);
     color: #6c757d;
@@ -131,16 +131,19 @@ body {
 }
 
 .search-input {
-    padding: 10px 15px 10px 40px;
+    padding: 10px 40px 10px 15px;
     border-radius: 8px;
     border: 1px solid #ced4da;
     transition: all 0.2s ease;
+    width: 100%;
 }
 
 .search-input:focus {
     border-color: #198754;
     box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
 }
+
+
 
 /* Botón agregar */
 .btn-add {
@@ -169,7 +172,7 @@ body {
 }
 
 
-/* Scroll interno opcional (para módulos grandes como Facturación) */
+
 .entity-layout__body--scroll {
     overflow: auto;
     -webkit-overflow-scrolling: touch;

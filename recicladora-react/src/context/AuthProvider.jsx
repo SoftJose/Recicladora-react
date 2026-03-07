@@ -43,9 +43,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null)
     }, [])
 
-    // ✅ Autenticado si hay token y NO está expirado.
-    // El user puede tardar en cargarse o venir null si el backend no lo devolvió,
-    // pero no deberíamos botar al usuario si el token es válido.
+
     const isAuthenticated = useMemo(
         () => !!token && !AuthService.isTokenExpired(token),
         [token]

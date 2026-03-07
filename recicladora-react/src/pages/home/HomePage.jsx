@@ -5,8 +5,6 @@ import logoPrincipal from "../../assets/img/logo_principal.png";
 const HomePage = () => {
     useEffect(() => {
         const fetchStats = async () => {
-            // stats pendiente de integrar (por ahora no se usa en UI)
-            // setStats({ materiales: 128, clientes: 54, ventas: 230 });
         };
         fetchStats();
     }, []);

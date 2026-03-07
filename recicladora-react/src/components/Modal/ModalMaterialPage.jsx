@@ -8,6 +8,7 @@ const MaterialModal = ({
     formData,
     isEditing,
     handleInputChange,
+    handleLocationChange,
     handleSubmit,
     categories = [],
     canMutate = true,
@@ -109,7 +110,7 @@ const MaterialModal = ({
                                         name="location"
                                         className="form-control"
                                         value={formData.location ?? ""}
-                                        onChange={handleInputChange}
+                                        onChange={handleLocationChange}
                                         placeholder="Ej: Bodega A - Estante 3"
                                         disabled={!canMutate}
                                     />

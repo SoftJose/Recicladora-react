@@ -13,6 +13,7 @@ import { canCategoryMutate } from "../../utils/permissions";
 const ITEMS_PER_PAGE = 10;
 
 const CategoryPage = () => {
+  // Hook que maneja la lógica de formulario y persistencia de categorías
   const {
     categories,
     formData,
@@ -28,6 +29,7 @@ const CategoryPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Filtrado de categorías por nombre o descripción
   const filteredCategories = useMemo(() => {
     const q = searchTerm.toLowerCase();
     const safe = Array.isArray(categories) ? categories : [];
@@ -38,6 +40,7 @@ const CategoryPage = () => {
     );
   }, [categories, searchTerm]);
 
+  // Paginación de resultados
   const {
     paginatedData,
     resetPage,
@@ -48,25 +51,30 @@ const CategoryPage = () => {
     itemsPerPage,
   } = usePagination(filteredCategories, ITEMS_PER_PAGE);
 
+  // Reinicia la página al cambiar el filtro
   useEffect(() => {
     resetPage();
   }, [searchTerm, filteredCategories.length, resetPage]);
 
+  // Abre modal para crear una nueva categoría
   const handleOpenModal = () => {
     resetForm();
     setFormData({ ...CategoryModel });
     setIsModalOpen(true);
   };
 
+  // Abre modal para editar una categoría existente
   const handleEditClick = (category) => {
     startEdit(category);
     setIsModalOpen(true);
   };
 
+  // Cierra el modal sin guardar cambios
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 
+  // Envía el formulario de creación/edición
   const handleSubmit = async (e) => {
     await submitForm(e);
     setIsModalOpen(false);
@@ -86,6 +94,7 @@ const CategoryPage = () => {
       bodyMaxHeight="calc(100vh - 210px)"
     >
       <div className="category-page">
+        {/* Tabla de categorías */}
         <div className="category-page__table-wrapper">
           <div className="category-page__table-scroll">
             <table className="category-table">
@@ -154,6 +163,7 @@ const CategoryPage = () => {
             </table>
           </div>
 
+          {/* Paginación de la tabla */}
           <div className="category-page__pagination">
             <Pagination
               currentPage={currentPage}
@@ -165,6 +175,7 @@ const CategoryPage = () => {
           </div>
         </div>
 
+        {/* Mensaje cuando no hay categorías para mostrar */}
         {paginatedData.length === 0 && (
           <div className="category-empty-state">
             <i className="bi bi-inbox fs-1 text-muted mb-3"></i>
@@ -181,6 +192,7 @@ const CategoryPage = () => {
           </div>
         )}
 
+        {/* Modal de creación/edición de categorías */}
         <CategoryModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}

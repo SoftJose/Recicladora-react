@@ -12,7 +12,7 @@ export const useCategoryForm = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // 📌 Manejo de inputs
+    // Manejo de inputs
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
 
@@ -22,7 +22,7 @@ export const useCategoryForm = () => {
         }));
     };
 
-    // 📌 Validaciones simples
+    // Validaciones simples
     const validateForm = () => {
         if (!formData.name.trim()) {
             alert.error("El nombre de la categoría es obligatorio");
@@ -75,13 +75,13 @@ export const useCategoryForm = () => {
         }
     };
 
-    // 📌 Preparar edición
+    // Preparar edición
     const startEdit = (category) => {
         setFormData({ ...category });
         setIsEditing(true);
     };
 
-    // 📌 Eliminar
+    // Eliminar
     const deleteCategory = async (id) => {
         try {
             if (!canCategoryMutate()) {
@@ -101,12 +101,11 @@ export const useCategoryForm = () => {
             loadCategories();
 
         } catch (error) {
-            console.error(error);
-            alert.error("No se pudo eliminar la categoría");
+            alert.error("No se pudo eliminar la categoría"+ error);
         }
     };
 
-    // 📌 Reset
+    // Reset
     const resetForm = () => {
         setFormData({ ...CategoryModel });
         setIsEditing(false);

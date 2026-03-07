@@ -128,7 +128,7 @@
     gap: 0.6rem;
 }
 
-/* Switch (reutiliza las clases de tu estilo general) */
+
 .switch-label {
     display: flex;
     align-items: center;

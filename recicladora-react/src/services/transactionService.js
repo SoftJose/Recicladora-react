@@ -11,9 +11,7 @@ export const transactionService = {
     },
 
     async findInvoiceById(id) {
-        // Este endpoint devuelve TransactionWithDetailsResponseDto (incluye `detalles`)
-        // y queremos preservarlo tal cual.
-        return await apiFetch(`${BASE_URL}/${id}`);
+         return await apiFetch(`${BASE_URL}/${id}`);
     },
 
     createInvoice(invoice) {
@@ -33,7 +31,6 @@ export const transactionService = {
         return apiFetchText(`${BASE_URL}/generar-codigo`);
     },
 
-    // Alias de compatibilidad (código viejo)
     async findAll() {
         return this.findAllInvoices();
     },

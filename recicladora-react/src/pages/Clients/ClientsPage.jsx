@@ -1,20 +1,19 @@
 import {useClientsForms} from "../../hooks/useClientsForms.js";
-import {useEffect, useState} from "react";
 import {usePagination} from "../../hooks/usePagination.js";
 import EntityLayout from "../../components/layout/Entity/EntityLayout.jsx";
 import clientsIcon from "../../assets/img/gestion-de-clientes.png";
 import "./ClientsPage.css";
+import {useState} from "react";
 
 const ClientsPage = () => {
-    const {
-        clients,
-    } = useClientsForms();
-
+    // Hook que obtiene y mantiene la lista de clientes
+    const { clients } = useClientsForms();
     const [searchTerm, setSearchTerm] = useState("");
 
     const q = searchTerm.toLowerCase();
     const safeClients = Array.isArray(clients) ? clients : [];
 
+    // Filtrado de clientes por nombre, identificación o apellidos
     const filteredClients = safeClients.filter((client) => {
         const name = (client?.name ?? "").toLowerCase();
         const identify = (client?.identify ?? "").toLowerCase();
@@ -23,14 +22,11 @@ const ClientsPage = () => {
         return name.includes(q) || identify.includes(q) || surnames.includes(q);
     });
 
+    // Paginación de resultados de clientes
     const {
         paginatedData,
-        resetPage,
     } = usePagination(filteredClients, 10);
 
-    useEffect(() => {
-        resetPage();
-    }, [searchTerm, resetPage]);
 
     return (
         <EntityLayout
@@ -38,10 +34,11 @@ const ClientsPage = () => {
             searchTerm={searchTerm}
             onSearch={setSearchTerm}
             addBtnText={null}
-            onAddClick={undefined}
+            onAddClick={null}
             headerIcon={clientsIcon}
         >
             <div className="clients-page">
+                {/* Tabla de clientes */}
                 <div className="clients-page__table-wrapper">
                     <table className="clients-table">
                         <thead className="clients-table__header">
@@ -99,6 +96,7 @@ const ClientsPage = () => {
                     </table>
                 </div>
 
+                {/* Mensaje cuando no hay clientes para mostrar */}
                 {paginatedData.length === 0 && (
                     <div className="clients-empty-state">
                         <i className="bi bi-inbox fs-1 text-muted mb-3"></i>

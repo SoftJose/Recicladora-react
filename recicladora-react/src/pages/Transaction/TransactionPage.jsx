@@ -45,6 +45,7 @@ const TransactionPage = () => {
         setPrice,
         subtotalPreview,
         addMaterialItem,
+        canSaveTransaction,
         items,
         removeItem,
         total,
@@ -484,6 +485,7 @@ const TransactionPage = () => {
                                         type="button"
                                         className="btn btn-outline-success"
                                         onClick={saveTransaction}
+                                        disabled={!canSaveTransaction()}
                                     >
                                         {actionLabel}
                                     </button>
@@ -500,6 +502,8 @@ const TransactionPage = () => {
         </EntityLayout>
     );
 };
+
+
 
 export default TransactionPage;
 

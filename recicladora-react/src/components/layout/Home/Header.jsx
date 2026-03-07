@@ -14,6 +14,11 @@ function Header() {
         [hasAnyRole]
     );
 
+    const canAccessAdmin = useMemo(
+        () => (typeof hasAnyRole === "function" ? hasAnyRole(["ADMIN"]) : false),
+        [hasAnyRole]
+    );
+
     const canAccessVendedor = useMemo(
         () => (typeof hasAnyRole === "function" ? hasAnyRole(["VENDEDOR"]) : false),
         [hasAnyRole]
@@ -114,20 +119,7 @@ function Header() {
                                                     <i className="bi bi-boxes me-2"></i> Materiales
                                                 </Link>
                                             </li>
-                                            <li className="nav-item">
-                                                <Link to="/clientes" className="nav-link" data-bs-dismiss="offcanvas"
-                                                      onClick={(e) => navTo(e, "/clientes")}
-                                                >
-                                                    <i className="bi bi-people-fill me-2"></i> Clientes
-                                                </Link>
-                                            </li>
-                                            <li className="nav-item">
-                                                <Link to="/usuarios" className="nav-link" data-bs-dismiss="offcanvas"
-                                                      onClick={(e) => navTo(e, "/usuarios")}
-                                                >
-                                                    <i className="bi bi-person-vcard me-2"></i> Usuarios
-                                                </Link>
-                                            </li>
+
                                             <li className="nav-item">
                                                 <Link to="/categorias" className="nav-link" data-bs-dismiss="offcanvas"
                                                       onClick={(e) => navTo(e, "/categorias")}
@@ -135,6 +127,25 @@ function Header() {
                                                     <i className="bi bi-tags-fill me-2"></i> Categorías
                                                 </Link>
                                             </li>
+                                        </>
+                                    )}
+
+                                    { isAuthenticated && canAccessAdmin && (  <>
+                                        <li className="nav-item">
+                                        <Link to="/clientes" className="nav-link" data-bs-dismiss="offcanvas"
+                                              onClick={(e) => navTo(e, "/clientes")}
+                                        >
+                                            <i className="bi bi-people-fill me-2"></i> Clientes
+                                        </Link>
+                                        </li>
+
+                                        <li className="nav-item">
+                                        <Link to="/usuarios" className="nav-link" data-bs-dismiss="offcanvas"
+                                              onClick={(e) => navTo(e, "/usuarios")}
+                                         >
+                                            <i className="bi bi-person-vcard me-2"></i> Usuarios
+                                         </Link>
+                                        </li>
                                         </>
                                     )}
 

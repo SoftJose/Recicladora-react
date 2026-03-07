@@ -46,18 +46,19 @@ export const AuthService = {
             }),
         });
 
-        const { accessToken, refreshToken, worker } = response;
+        const { accessToken, worker } = response;
 
         if (!accessToken || !worker) {
             throw new Error("Respuesta inválida del servidor");
         }
 
+        // Guardar solo accessToken
         localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(worker));
 
-        return { token: accessToken, refreshToken: refreshToken ?? null, user: worker };
+        return { token: accessToken, user: worker };
     },
+
 
     // =========================
     // REFRESH TOKEN
@@ -145,7 +146,7 @@ export const AuthService = {
         const user = this.getUser();
         const token = this.getToken();
 
-        // 1) Preferimos roles del token si existen
+        // Preferimos roles del token si existen
         if (token) {
             const payload = decodeJwtPayload(token);
             const rawRoles = payload?.roles || payload?.authorities || payload?.scope;
@@ -162,10 +163,10 @@ export const AuthService = {
             }
         }
 
-        // 2) Fallback: worker DTO en localStorage
+
         if (!user) return [];
 
-        // Algunos DTOs traen `roleName` o `roles`
+
         if (user.roleName) {
             return [normalizeRole(user.roleName)].filter(Boolean);
         }
@@ -174,7 +175,6 @@ export const AuthService = {
             return user.roles.map(normalizeRole).filter(Boolean);
         }
 
-        // 3) Fallback: intentar leer una estructura común fkRoles.name
         if (user.fkRoles?.name) {
             return [normalizeRole(user.fkRoles.name)].filter(Boolean);
         }

@@ -5,7 +5,6 @@ import { useCategoriesContext } from "../context/Category/useCategoriesContext";
 import { useAuth } from "./useAuth";
 import { alert } from "../utils/alert";
 import { PersonModel, PersonMapper } from "../interfaces/personModel.js";
-import {transactionMapper} from "../interfaces/transactionModel.js";
 import {ClientService} from "../services/clientsServices.js";
 import {transactionService} from "../services/transactionService.js";
 
@@ -14,18 +13,17 @@ import {transactionService} from "../services/transactionService.js";
  * Aquí va TODA la lógica/estado para mantener `InvoicesPage` lo más presentacional posible.
  */
 export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
-    const { clients } = useClientsContext();
-    const { materials } = useMaterialsContext();
+    const { clients,setClients } = useClientsContext();
+    const { materials,setMaterials: updateMaterialsState,loadMaterials } = useMaterialsContext();
     const { categoriesById } = useCategoriesContext();
     const { user } = useAuth();
 
-    const isDev = import.meta?.env?.DEV;
-    const debug = (...args) => {
-        if (!isDev) return;
-        // eslint-disable-next-line no-console
-        console.log("[useTransactions]", ...args);
-    };
 
+    const isDev = import.meta?.env?.DEV;
+    const debug = () => {
+        if (!isDev) return;
+        
+    };
 
     // TIPO DE TRANSACCIÓN (VENTA | COMPRA)
     const [transactionType, setTransactionType] = useState(defaultType);
@@ -60,7 +58,6 @@ export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
         if (clientModeWithData) return;
         if (!consumidorFinal?.identify) return;
 
-        // No pisar si el usuario ya escribió una cédula distinta
         if (clientForm.identify && String(clientForm.identify) !== String(consumidorFinal.identify)) {
             return;
         }
@@ -77,6 +74,28 @@ export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
     const onClientChange = (e) => {
         const { name, value } = e.target;
         setClientForm((prev) => ({ ...prev, [name]: value }));
+
+        // Si están escribiendo la cédula, buscar automáticamente
+        if (name === "identify" && value.length === 10) {
+            searchClientByIdentify(value);
+        }
+    };
+
+    const searchClientByIdentify = (identify) => {
+        const safeClients = Array.isArray(clients) ? clients : [];
+        const foundClient = safeClients.find((c) => String(c.identify) === String(identify));
+
+        if (foundClient) {
+            // Rellenar automáticamente los campos
+            setClientForm({
+                identify: foundClient.identify,
+                name: foundClient.name || "",
+                surnames: foundClient.surnames || "",
+                address: foundClient.address || "",
+                email: foundClient.email || "",
+                phone: foundClient.phone || ""
+            });
+        }
     };
 
     const clientSelected = useMemo(() => {
@@ -152,16 +171,16 @@ export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
     }, [items]);
 
     useEffect(() => {
-        debug("materials loaded:", safeMaterials.length, safeMaterials.slice(0, 3));
+        debug(safeMaterials.length, safeMaterials.slice(0, 3));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [safeMaterials.length]);
 
     useEffect(() => {
-        debug("selectedMaterialId changed:", selectedMaterialId);
+        debug(selectedMaterialId);
     }, [selectedMaterialId]);
 
     useEffect(() => {
-        debug("price changed:", price);
+        // (depuración removida)
     }, [price]);
 
     useEffect(() => {
@@ -219,7 +238,7 @@ export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
                 ? valueOrEvent
                 : valueOrEvent?.target?.value;
 
-        debug("handleMaterialInput value:", value);
+        debug(value);
         setMaterialQuery(value || "");
 
         const raw = String(value || "").trim();
@@ -330,7 +349,7 @@ export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
             setItems((prev) => [...prev, newItem]);
         }
 
-        // 🔄 Limpiar formulario
+        //  Limpiar formulario
         setQuantity(0);
         setMaterialQuery("");
         setSelectedMaterialId(null);
@@ -381,6 +400,29 @@ export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
         return true;
     };
 
+    const canSaveTransaction = () => {
+
+        if (!invoiceCode?.trim()) return false;
+
+        if (items.length === 0) return false;
+
+        if (transactionType === "COMPRA") {
+            const requiredFields = [
+                "identify",
+                "name",
+                "surnames",
+                "address",
+                "email",
+                "phone",
+            ];
+            for (const field of requiredFields) {
+                if (!clientForm[field]?.trim()) return false;
+            }
+        }
+
+        return true;
+    };
+
     const resetAll = async () => {
         setClientModeWithData(false);
         setClientForm({ ...PersonModel });
@@ -401,15 +443,18 @@ export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
             alert.error("Tu sesión expiró. Por favor vuelve a iniciar sesión.");
             return;
         }
+
         if (!validateClientSection()) return;
         if (!invoiceCode?.trim()) {
             alert.error("Ingresa/genera un código de factura");
             return;
         }
+
         if (!sellerId) {
             alert.error("No se pudo detectar el vendedor (usuario autenticado)");
             return;
         }
+
         if (items.length === 0) {
             alert.error("Agrega al menos un material");
             return;
@@ -417,148 +462,137 @@ export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
 
         let personId = clientSelected?.id ?? null;
 
-        /* =====================================
-           CREAR PERSONA SOLO SI ES NUEVO (MODO MANUAL)
-        ===================================== */
-
+        // =======================================
+        // CREAR CLIENTE/PROVEEDOR SI ES NUEVO (MODO MANUAL)
+        // =======================================
         if (clientModeWithData) {
-            // Si ya existe una persona con esa cédula, no permitir duplicado
             if (clientSelected) {
-                alert.error("Ya existe un registro con esa cédula.");
-                return;
-            }
+                // Ya existe, usar el existente
+                personId = clientSelected.id;
 
-            try {
-                const createPayloadFront = {
-                    ...clientForm,
-                    // Flags según el tipo en el modelo frontend
-                    client: transactionType === "VENTA",
-                    supplier: transactionType === "COMPRA",
-                    end_Consumer: false,
-                };
-
-                const createdClient = await ClientService.createClient(
-                    PersonMapper.toBackend(createPayloadFront)
-                );
-
-                // La API de /clientes/guardar debería devolver PersonDto
-                personId = createdClient?.id ?? null;
-
-                if (!personId) {
-                    alert.error("No se pudo obtener el ID del registro creado.");
+                // Verificar que el cliente existente sea compatible con el tipo de transacción
+                if (transactionType === "COMPRA" && !clientSelected.supplier) {
+                    alert.error("El cliente seleccionado no está registrado como proveedor. Debe crear un nuevo registro o seleccionar un proveedor válido.");
                     return;
                 }
-            } catch (error) {
-                console.error(error);
-                alert.error(
-                    error?.message ||
+                if (transactionType === "VENTA" && !clientSelected.client && !clientSelected.end_Consumer) {
+                    alert.error("El cliente seleccionado no está registrado como cliente válido para ventas.");
+                    return;
+                }
+            } else {
+                // No existe, crear nuevo
+                try {
+                    const createPayloadFront = {
+                        ...clientForm,
+                        client: transactionType === "VENTA",
+                        supplier: transactionType === "COMPRA",
+                        end_Consumer: false,
+                    };
+
+                    const createdClient = await ClientService.createClient(createPayloadFront);
+
+                    personId = createdClient?.id ?? null;
+                    if (!personId) {
+                        alert.error("No se pudo obtener el ID del registro creado.");
+                        return;
+                    }
+
+                    // Actualizar la lista de clientes en el contexto
+                    if (typeof setClients === "function") {
+                        setClients(prev => [...prev, createdClient]);
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                    alert.error(
+                        error?.message ||
                         "Error al guardar los datos. Verifique la cédula y campos requeridos."
-                );
-                return;
+                    );
+                    return;
+                }
             }
         }
 
-        /* ===========================
-           REGLAS POR TIPO
-           - VENTA:
-             * total < 50: permitido Consumidor Final (si no pide con datos)
-             * total >= 50: SI o SI debe ir con datos de cliente
-           - COMPRA:
-             * SI o SI debe ir con datos de proveedor (independiente del total)
-        =========================== */
 
         const totalNumber = Number(total || 0);
-        const requiresDataForVenta = totalNumber >= 50;
 
         if (transactionType === "VENTA") {
+            const requiresDataForVenta = totalNumber >= 50;
+
             if (requiresDataForVenta && !clientModeWithData) {
                 alert.error("Si la venta es mayor o igual a $50, debes ingresar datos del cliente.");
                 return;
             }
 
             if (!clientModeWithData) {
-                /* Si no hay datos, intentamos usar el ID que el frontend encontró.
-                   Si el frontend no lo encontró (CONSUMIDOR_FINAL_ID es null),
-                   NO lanzamos error. Mandamos null al backend y él usará la cédula 9999999999.
-                */
+                // Usar consumidor final si no hay datos
                 personId = CONSUMIDOR_FINAL_ID;
-            } else {
-                if (!personId) {
-                    alert.error("La venta con datos requiere seleccionar/crear un cliente.");
-                    return;
-                }
-
-                if (clientSelected) {
-                    const isCliente = clientSelected?.client === true;
-                    const isConsumidorFinal = clientSelected?.end_Consumer === true;
-                    if (!isCliente && !isConsumidorFinal) {
-                        alert.error("Debes seleccionar un cliente válido para la venta.");
-                        return;
-                    }
-                }
+            } else if (!personId) {
+                alert.error("La venta con datos requiere un cliente válido.");
+                return;
             }
         }
 
         if (transactionType === "COMPRA") {
-            // Compra: siempre con datos
-            if (!clientModeWithData && !personId) {
-                alert.error("La compra requiere datos del proveedor (no se permite Consumidor Final).");
-                return;
-            }
-
             if (!personId) {
-                alert.error("La compra requiere seleccionar/crear un proveedor.");
+                alert.error("La compra requiere un proveedor válido.");
                 return;
             }
 
-            const selectedPerson = (Array.isArray(clients) ? clients : []).find(
-                (c) => Number(c.id) === Number(personId)
-            );
-
-            if (!selectedPerson?.supplier) {
-                alert.error("Debes seleccionar un proveedor válido para la compra.");
-                return;
-            }
+            // Esta validación ya no es necesaria porque selectedPerson ya tiene las propiedades correctas
+            // desde la sección de creación/selección arriba
         }
 
-        // Solo bloquear compras sin proveedor
-        if (transactionType === "COMPRA" && !personId) {
-            alert.error("La compra requiere un proveedor.");
-            return;
-        }
-
+        // =======================================
+        // ENVIAR TRANSACCIÓN AL BACKEND
+        // =======================================
         try {
-            // Crear el objeto con los nombres que tu mapper espera
             const transactionData = {
-                code: invoiceCode.trim(),  // El mapper lo ignora en toBackend (no se envía)
+                code: invoiceCode.trim(),
                 type: transactionType,
                 personId: personId,
                 userId: sellerId,
-                details: items.map((it) => ({
+                details: items.map(it => ({
                     materialId: it.materialId,
                     quantity: it.quantity,
                     price: it.price
                 }))
             };
 
-            console.log("Transaction Data:", transactionData);
+            await transactionService.createInvoice(transactionData);
 
-            // El mapper convierte a español automáticamente
-            const backendPayload = transactionMapper.toBackend(transactionData);
-            console.log("Backend Payload:", backendPayload);
+            // Actualización Optimista de Stock
+            if (typeof updateMaterialsState === "function") {
+                const updatedMaterials = safeMaterials.map(material => {
+                    const itemInTransaction = items.find(it => it.materialId === material.id);
+                    if (itemInTransaction) {
+                        const adjustment = transactionType === "VENTA"
+                            ? -Number(itemInTransaction.quantity)
+                            : Number(itemInTransaction.quantity);
 
-            // Enviar usando el servicio
-            await transactionService.createInvoice(transactionData); // El servicio debe usar el mapper internamente
+                        return {
+                            ...material,
+                            stock: Number(material.stock || 0) + adjustment
+                        };
+                    }
+                    return material;
+                });
+                updateMaterialsState(updatedMaterials);
+            }
 
+            // Recargar desde la BD
+            if (typeof loadMaterials === "function") {
+                await loadMaterials();
+            }
 
-            alert.success("Transacción y detalles guardados correctamente");
+            alert.success("Transacción guardada exitosamente. El stock ha sido actualizado.");
             await resetAll();
+
         } catch (e) {
-            console.error(e);
+            console.error("Error saving transaction:", e);
             alert.error(e?.message || "No se pudo guardar la transacción");
         }
     };
-
     return {
         // tipo
         transactionType,
@@ -597,6 +631,7 @@ export const useTransactions = ({ defaultType = "VENTA" } = {}) => {
         items,
         setItems,
         addMaterialItem,
+        canSaveTransaction,
         removeItem,
         total,
 

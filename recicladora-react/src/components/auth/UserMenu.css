@@ -1,8 +1,4 @@
-/*
-  Limpieza: quitamos estilos legacy que sobreescribían clases globales de Bootstrap
-  (.dropdown-item, .dropdown-divider, etc.) y el dropdown custom por hover.
-  Nos quedamos con lo necesario para el avatar.
-*/
+
 
 /* Avatar dentro del botón */
 .avatar-placeholder {

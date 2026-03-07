@@ -4,6 +4,6 @@ export const RolesModel ={
     nombre: "",
     estado:true,
     descripcion: "",
-    fechaIngreso: new Date().toISOString(),
-    fechaActualizacion: new Date().toISOString()
+    fechaIngreso: null,
+    fechaActualizacion: null
 }

@@ -5,25 +5,13 @@ const BASE_URL = "/v1/categorias";
 
 export const categoryService = {
 
-    // 📌 Listar todas
+    //  Listar todas
     async findAllCategories() {
         const data = await apiFetch(`${BASE_URL}/`);
         return data.map(CategoryMapper.fromBackend);
     },
 
-    // 📌 Buscar por ID
-    async findCategoryById(id) {
-        const data = await apiFetch(`${BASE_URL}/${id}`);
-        return data.map(CategoryMapper.fromBackend);
-    },
-
-    // 📌 Buscar por nombre
-    async searchCategory(name) {
-        const data = await apiFetch(`${BASE_URL}/buscar/${name}`);
-        return data.map(CategoryMapper.fromBackend);
-    },
-
-    // 📌 Crear
+    // Crear
     createCategory(category) {
         return apiFetch(`${BASE_URL}/guardar`, {
             method: "POST",
@@ -31,7 +19,7 @@ export const categoryService = {
         });
     },
 
-    // 📌 Actualizar
+    //  Actualizar
     updateCategory(id, category) {
         return apiFetch(`${BASE_URL}/editar/${id}`, {
             method: "PUT",
@@ -39,7 +27,7 @@ export const categoryService = {
         });
     },
 
-    // 📌 Eliminar
+    // Eliminar
     remove(id) {
         return apiFetch(`${BASE_URL}/eliminar/${id}`, {
             method: "DELETE",

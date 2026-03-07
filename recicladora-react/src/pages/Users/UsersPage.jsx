@@ -55,7 +55,6 @@ const UsersPage = () => {
     await deleteWorker(w.id);
   };
 
-  // Referencia intencional para bundlers/linters (documentación viva)
   void Permissions;
 
   return (

@@ -8,7 +8,7 @@ import { canMaterialMutate } from "../utils/permissions";
 const isEmpty = (v) => v === null || v === undefined || v === "";
 
 const getUserIdFromStorageOrJwt = () => {
-    // 1) Preferir el usuario guardado por AuthService (worker)
+    // Preferir el usuario guardado por AuthService (worker)
     try {
         const rawUser = localStorage.getItem("user");
         if (rawUser) {
@@ -21,7 +21,7 @@ const getUserIdFromStorageOrJwt = () => {
         // ignore
     }
 
-    // 2) Fallback: intentar extraer desde JWT (si el backend lo incluyera en claims)
+    // Fallback: intentar extraer desde JWT (si el backend lo incluyera en claims)
     const token = localStorage.getItem("accessToken");
     if (!token) return null;
 
@@ -64,16 +64,40 @@ export const useMaterialForm = () => {
             [name]: type === "checkbox" ? checked : value,
         }));
     };
+    const handleLocationChange = async (e) => {
+        handleInputChange(e); // actualiza el formData primero
+        if (e.target.name === "location") {
+            await generateMaterialCode(); // genera nuevo código según la ubicación
+        }
+    };
 
     const generateMaterialCode = async () => {
         try {
             setCodeError(null);
-            const code = await materialsService.generatedCode();
+
+            let lote = "A"; // valor por defecto
+
+            if (formData?.location) {
+                const match = formData.location.match(/Lote\s*([A-Z])/i);
+                if (match) {
+                    lote = match[1].toUpperCase();
+                }
+            }
+
+            const code = await materialsService.generatedCode(lote);
+
             const normalized = String(code || "").trim();
-            setFormData((prev) => ({ ...prev, code: normalized }));
+
+            setFormData((prev) => ({
+                ...prev,
+                code: normalized,
+            }));
+
             return normalized;
+
         } catch (error) {
             console.error(error);
+
             setFormData((prev) => ({ ...prev, code: "" }));
 
             if (error?.code === "SESSION_EXPIRED") {
@@ -83,6 +107,7 @@ export const useMaterialForm = () => {
 
             setCodeError("NO_CODE");
             alert.error(error.message || "No se pudo generar el código");
+
             return null;
         }
     };
@@ -210,6 +235,7 @@ export const useMaterialForm = () => {
         isSubmitting,
 
         handleInputChange,
+        handleLocationChange,
         submitForm,
         startEdit,
         deleteMaterial,

@@ -61,7 +61,7 @@ const ProfilePage = () => {
     }
 
     try {
-      // payload alineado a tu backend WorkersDto
+
       const payload = {
         cedula: form.cedula,
         nombres: form.nombres,
@@ -72,12 +72,12 @@ const ProfilePage = () => {
         username: form.username,
       };
 
-      // Cambiar contraseña solo si escribe una nueva
+
       if (form.password?.trim()) payload.password = form.password;
 
       const updated = await WorkerServices.updateWorker(userId, payload);
 
-      // Actualizar usuario en storage para que header muestre cambios
+
       AuthService.setUser(updated);
       setMsg("Perfil actualizado.");
       setForm((p) => ({ ...p, password: "" }));

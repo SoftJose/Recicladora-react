@@ -26,7 +26,6 @@ const onTokenRefreshed = (token) => {
  */
 const clearAuthData = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
 };
 
@@ -251,8 +250,12 @@ const handleUnauthorized = async (endpoint, originalOptions) => {
         })
 
         if (!response.ok) {
-            clearAuthData()
+            console.error("Refresh token inválido");
+
+            clearAuthData();
+
             onTokenRefreshed(null)
+
             const err = new Error("Sesión expirada")
             err.code = "SESSION_EXPIRED"
             throw err
@@ -261,7 +264,6 @@ const handleUnauthorized = async (endpoint, originalOptions) => {
         const data = await response.json().catch(() => ({}))
         const newToken = data.accessToken || data.token || null
 
-        // Si el backend también devuelve accessToken, lo guardamos para compatibilidad
         if (newToken) {
             localStorage.setItem("accessToken", newToken)
         }
@@ -274,6 +276,10 @@ const handleUnauthorized = async (endpoint, originalOptions) => {
         originalOptions.headers = h2;
 
         return await apiFetch(endpoint, originalOptions)
+    }catch (error) {
+        if (error.code === "SESSION_EXPIRED") {
+            window.location.href = "/login";
+        }
     } finally {
         isRefreshing = false
     }

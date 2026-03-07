@@ -7,10 +7,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './styles/global.css';
 import {AuthProvider} from "./context/AuthProvider"
 
-// Importar utilidades de debug en desarrollo
-if (import.meta.env.DEV) {
-    import('./utils/debug-auth.js');
-}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

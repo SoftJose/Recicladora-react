@@ -22,7 +22,6 @@ const CategoryModal = ({
 
         document.addEventListener("keydown", onKeyDown);
 
-        // Evita scroll del body cuando el modal está abierto
         const prevOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
 

@@ -28,13 +28,13 @@ const MaterialPage = () => {
         generateMaterialCode,
     } = useMaterialForm();
 
-    // Para el selector de categorías en el modal (si existen)
+
     const { categories } = useCategoriesContext();
 
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // ✅ Reporte
+    // Reporte
     const [reportLocation, setReportLocation] = useState("");
     const [reportLote, setReportLote] = useState("");
 
@@ -79,17 +79,12 @@ const MaterialPage = () => {
 
     const {
         paginatedData,
-        resetPage,
         currentPage,
         totalPages,
         goToPage,
         totalItems,
         itemsPerPage,
     } = usePagination(filteredMaterials, ITEMS_PER_PAGE);
-
-    useEffect(() => {
-        resetPage();
-    }, [searchTerm, resetPage]);
 
     // Pre-generar el código para el próximo material
     useEffect(() => {
@@ -126,9 +121,7 @@ const MaterialPage = () => {
         }
 
         try {
-            // Si tu backend devuelve un PDF como blob, aquí habría que implementarlo.
-            // Por ahora se deja el endpoint existente para que lo conectes según tu backend.
-            await materialsService.exportToPdfByLote(lote);
+
             alert.success("Solicitud de reporte enviada. Ajusta la descarga según tu backend.");
         } catch (e) {
             alert.error(e.message || "No se pudo generar el reporte por lote");

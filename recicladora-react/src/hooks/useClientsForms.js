@@ -12,7 +12,7 @@ export const useClientsForms = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // 📌 Manejo de inputs
+    // Manejo de inputs
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
 

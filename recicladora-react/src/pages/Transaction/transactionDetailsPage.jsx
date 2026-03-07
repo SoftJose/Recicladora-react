@@ -7,47 +7,39 @@ import { useMaterialsContext } from "../../context/Material/useMaterialsContext"
 import "./transactionDetailsPage.css";
 
 const DetailsPage = () => {
-    const [clientIdentify, setClientIdentify] = useState("");
-
+    const [searchQuery, setSearchQuery] = useState("");
     const { clients } = useClientsContext();
-    const { materials } = useMaterialsContext();
+    const { materials, loadMaterials } = useMaterialsContext();
+
+    // ...existing code...
 
     const [transactions, setTransactions] = useState([]);
-
     const [expanded, setExpanded] = useState(() => new Set());
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    // detalles cargados bajo demanda por transacción (id -> items[])
     const [detailsByTx, setDetailsByTx] = useState(() => new Map());
     const [loadingTxId, setLoadingTxId] = useState(null);
 
     useEffect(() => {
-        let mounted = true;
-
         const load = async () => {
             try {
                 setLoading(true);
                 setError(null);
-
-                const txs = await transactionService.findAllInvoices();
-                if (!mounted) return;
-                setTransactions(Array.isArray(txs) ? txs : []);
+                await Promise.all([
+                    transactionService.findAllInvoices().then(setTransactions),
+                    loadMaterials()
+                ]);
             } catch (e) {
-                console.error(e);
-                if (!mounted) return;
+                console.error("Error al cargar datos:", e);
                 setError(e);
             } finally {
-                if (mounted) setLoading(false);
+                setLoading(false);
             }
         };
-
         load();
-        return () => {
-            mounted = false;
-        };
-    }, []);
+    }, [loadMaterials]);
 
+    // --- MEMOS DE BÚSQUEDA ---
     const clientsById = useMemo(() => {
         const map = new Map();
         (Array.isArray(clients) ? clients : []).forEach((c) => {
@@ -56,45 +48,60 @@ const DetailsPage = () => {
         return map;
     }, [clients]);
 
-    const clientsByIdentify = useMemo(() => {
-        const map = new Map();
-        (Array.isArray(clients) ? clients : []).forEach((c) => {
-            const key = c?.identify != null ? String(c.identify) : "";
-            if (key) map.set(key, c);
-        });
-        return map;
-    }, [clients]);
 
     const materialsById = useMemo(() => {
         const map = new Map();
         (Array.isArray(materials) ? materials : []).forEach((m) => {
-            if (m?.id == null) return;
-            map.set(Number(m.id), m);
+            if (m?.id != null) map.set(Number(m.id), m);
         });
         return map;
     }, [materials]);
 
     const filteredTransactions = useMemo(() => {
         const list = Array.isArray(transactions) ? transactions : [];
-        const q = String(clientIdentify || "").trim();
-        if (!q) return list;
+        const query = String(searchQuery || "").trim().toLowerCase();
 
-        const client = clientsByIdentify.get(q);
-        if (!client?.id) return [];
-        return list.filter((t) => Number(t.personId) === Number(client.id));
-    }, [transactions, clientIdentify, clientsByIdentify]);
+        if (!query) return list;
+
+        return list.filter((t) => {
+            // Buscar por código de factura
+            const code = String(t.code || "").toLowerCase();
+            if (code.includes(query)) return true;
+
+            // Buscar por datos del cliente
+            const person = t.personId != null ? clientsById.get(Number(t.personId)) : null;
+            if (person) {
+                // Buscar por cédula
+                const identify = String(person.identify || "").toLowerCase();
+                if (identify.includes(query)) return true;
+
+                // Buscar por nombre completo
+                const name = String(person.name || person.nombre || "").toLowerCase();
+                const surnames = String(person.surnames || person.apellidos || "").toLowerCase();
+                const fullName = `${name} ${surnames}`.trim().toLowerCase();
+
+                if (name.includes(query) || surnames.includes(query) || fullName.includes(query)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+    }, [transactions, searchQuery, clientsById]);
 
     const invoices = useMemo(() => {
         const list = Array.isArray(filteredTransactions) ? filteredTransactions : [];
-        const sorted = [...list].sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+        // Cambiar ordenamiento a ascendente (más antiguos primero)
+        const sorted = [...list].sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
 
         return sorted.map((t) => {
             const person = t.personId != null ? clientsById.get(Number(t.personId)) : null;
+            const name = person?.name || person?.nombre || "";
+            const surnames = person?.surnames || person?.apellidos || "";
 
-            const clientName =
-                person?.name || person?.nombre
-                    ? `${person?.name ?? person?.nombre ?? ""} ${person?.surnames ?? person?.apellidos ?? ""}`.trim()
-                    : (person?.end_Consumer || person?.endConsumer ? "Consumidor Final" : "Consumidor Final");
+            const clientName = (name || surnames)
+                ? `${name} ${surnames}`.trim()
+                : "Consumidor Final";
 
             return {
                 transactionId: t.id,
@@ -110,28 +117,31 @@ const DetailsPage = () => {
         [invoices]
     );
 
+    // --- FUNCIONES ---
     const enrichItems = (items) => {
         const safe = Array.isArray(items) ? items : [];
         return safe.map((it) => {
-            const mat = it?.materialId != null ? materialsById.get(Number(it.materialId)) : null;
+            const matReal = it?.materialId != null ? materialsById.get(Number(it.materialId)) : null;
 
-            const qty = Number(it.cantidad ?? it.quantity ?? 0);
-            const price = Number(it.precioUnitario ?? it.price ?? 0);
+            // Buscamos cantidad: puede venir del mapper (quantity) o del backend (cantidad)
+            const qty = Number(it.quantity ?? it.cantidad ?? 0);
 
-            const hasSubtotal = it.subtotal !== null && it.subtotal !== undefined;
-            const subtotalFromBackend = hasSubtotal ? Number(it.subtotal) : null;
-            const subtotal = subtotalFromBackend ?? qty * price;
+            // Buscamos precio: puede venir del mapper (price) o del backend (precioUnitario)
+            const price = Number(it.price ?? it.precioUnitario ?? 0);
+
+            // Calculamos el subtotal si no viene ya calculado
+            const subtotal = it.subtotal ?? (qty * price);
 
             return {
                 ...it,
                 quantity: qty,
-                price,
-                subtotal,
+                price: price,
+                subtotal: subtotal,
                 materialName:
                     it.materialName ||
-                    mat?.materialName ||
-                    mat?.name ||
-                    (it.materialId != null ? `Material #${it.materialId}` : ""),
+                    matReal?.materialName ||
+                    matReal?.name ||
+                    `Material #${it.materialId}`
             };
         });
     };
@@ -140,11 +150,8 @@ const DetailsPage = () => {
         const id = Number(txId);
         if (!id) return;
 
-        const isCurrentlyOpen = expanded.has(id);
-
-        // Si está abierto, solo cerramos (no fetch)
-        if (isCurrentlyOpen) {
-            setExpanded((prev) => {
+        if (expanded.has(id)) {
+            setExpanded(prev => {
                 const next = new Set(prev);
                 next.delete(id);
                 return next;
@@ -152,228 +159,143 @@ const DetailsPage = () => {
             return;
         }
 
-        // Abrir
-        setExpanded((prev) => {
-            const next = new Set(prev);
-            next.add(id);
-            return next;
-        });
-
-        // Si ya lo tenemos cargado, no volvemos a pedir
+        setExpanded(prev => new Set(prev).add(id));
         if (detailsByTx.has(id)) return;
 
         try {
             setLoadingTxId(id);
             const tx = await transactionService.findInvoiceById(id);
             const items = enrichItems(tx?.detalles ?? tx?.details ?? []);
-
-            setDetailsByTx((prev) => {
-                const next = new Map(prev);
-                next.set(id, items);
-                return next;
-            });
+            setDetailsByTx(prev => new Map(prev).set(id, items));
         } catch (e) {
             console.error(e);
-            alert.error(e?.message || "No se pudo cargar el detalle de la transacción");
+            alert.error("No se pudo cargar el detalle");
         } finally {
             setLoadingTxId(null);
         }
     };
 
-    const onGeneralPdf = async () => {
-        alert.info("Pendiente: conectar Reporte general PDF con el backend");
-    };
-
-    const onClientPdf = async () => {
-        if (!clientIdentify.trim()) {
-            alert.error("Ingresa la cédula/identificación del cliente para generar el reporte");
-            return;
-        }
-        alert.info(`Pendiente: conectar Reporte PDF por cliente (${clientIdentify}) con el backend`);
-    };
-
-    const onInvoicePdf = async (txId) => {
-        alert.info(`Pendiente: descargar PDF de la transacción/factura ${txId}`);
-    };
-
     return (
-        <EntityLayout
-            title="Detalles / Reportes"
-            hideControls
-            bodyScroll
-            bodyMaxHeight="calc(100vh - 70px)"
-        >
+        <EntityLayout title="Detalles / Reportes" hideControls bodyScroll>
             <div className="details-page container my-3">
-                <div className="details-header">
-                    <div className="details-header__left">
-                        <h4 className="details-title">Transacciones / Reportes</h4>
-                        <p className="details-subtitle text-muted mb-0">
-                            Resumen por factura (transacción). Para ver los materiales, abre una factura.
-                        </p>
-                    </div>
 
-                    <div className="details-header__right">
-                        <div className="details-client-filter">
-                            <label className="form-label mb-1" htmlFor="details-client">
-                                Reporte por cliente (cédula)
-                            </label>
-                            <div className="input-group">
-                                <input
-                                    id="details-client"
-                                    type="text"
-                                    className="form-control"
-                                    value={clientIdentify}
-                                    onChange={(e) => setClientIdentify(e.target.value)}
-                                    placeholder="0102030405"
-                                />
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-secondary"
-                                    onClick={() => setClientIdentify("")}
-                                    title="Limpiar"
-                                >
-                                    <i className="bi bi-x-lg" />
-                                </button>
-                            </div>
-                            <small className="text-muted">
-                                (Filtro local: usa la lista de clientes ya cargada)
-                            </small>
+                {/* 1. CABECERA: Título y Buscador */}
+                <div className="details-header d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 className="details-title mb-1">Transacciones / Reportes</h4>
+                        <p className="text-muted mb-0">Resumen por factura y búsqueda por cliente.</p>
+                    </div>
+                    <div className="search-box" style={{ width: "350px" }}>
+                        <div className="input-group">
+                            <span className="input-group-text bg-white"><i className="bi bi-search"></i></span>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Buscar por nombre, cédula o código de factura..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
                         </div>
                     </div>
                 </div>
 
-                <div className="details-card mt-3">
-                    <div className="details-card__header">
-                        <div className="details-card__header-title">
-                            <span className="badge text-bg-success">Resumen</span>
-                            <span className="ms-2 fw-bold">Facturas / Transacciones</span>
-                        </div>
-                        <div className="details-card__header-total">
-                            <span className="text-muted">Total general:</span>
-                            <span className="ms-2 fw-bold">{totalGeneral.toFixed(2)}</span>
-                        </div>
+                {/* 2. CARD PRINCIPAL */}
+                <div className="details-card shadow-sm border-0">
+                    <div className="details-card__header d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
+                        <span className="text-uppercase fw-bold text-secondary small">Lista de Facturas</span>
+                        <span className="fw-bold text-success fs-5">Total General: ${totalGeneral.toFixed(2)}</span>
                     </div>
 
-                    <div className="details-card__body">
+                    <div className="details-card__body p-3">
+                        {/* Estados de Carga y Error */}
                         {loading && (
-                            <div className="alert alert-info mb-3">Cargando transacciones y detalles...</div>
+                            <div className="text-center py-5">
+                                <div className="spinner-border text-success" role="status"></div>
+                                <p className="mt-2 text-muted">Obteniendo información del servidor...</p>
+                            </div>
                         )}
 
                         {error && (
-                            <div className="alert alert-danger mb-3">
-                                No se pudieron cargar los datos. {error?.message ? `(${error.message})` : ""}
+                            <div className="alert alert-danger py-3" role="alert">
+                                <i className="bi bi-exclamation-octagon-fill me-2"></i>
+                                <strong>Error al cargar:</strong> {error.message || "Error desconocido"}
                             </div>
                         )}
 
-                        {!loading && !error && invoices.length === 0 && (
-                            <div className="alert alert-warning mb-3">
-                                No hay transacciones para mostrar.
-                            </div>
-                        )}
-
-                        <div className="table-responsive">
-                            <table className="table table-bordered details-table">
-                                <thead>
+                        {/* Tabla de Resultados */}
+                        {!loading && !error && (
+                            <div className="table-responsive">
+                                <table className="table table-hover align-middle">
+                                    <thead className="table-light">
                                     <tr>
-                                        <th style={{ width: 180 }}>Factura</th>
+                                        <th>Factura</th>
                                         <th>Cliente</th>
-                                        <th style={{ width: 140 }} className="text-end">Total</th>
-                                        <th style={{ width: 260 }}>Acciones</th>
+                                        <th className="text-end">Total</th>
+                                        <th className="text-center">Acciones</th>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {invoices.map((inv) => {
-                                        const isOpen = expanded.has(inv.transactionId);
-                                        const items = detailsByTx.get(inv.transactionId) || [];
-                                        const isLoadingThis = loadingTxId === inv.transactionId;
-
-                                        return (
+                                    </thead>
+                                    <tbody>
+                                    {invoices.length > 0 ? (
+                                        invoices.map((inv) => (
                                             <Fragment key={inv.transactionId}>
                                                 <tr>
                                                     <td className="fw-bold">{inv.transactionCode}</td>
-                                                    <td>{inv.clientName || "Consumidor Final"}</td>
-                                                    <td className="text-end fw-bold">{Number(inv.total || 0).toFixed(2)}</td>
-                                                    <td>
-                                                        <div className="btn-group" role="group">
-                                                            <button
-                                                                type="button"
-                                                                className={`btn btn-sm ${isOpen ? "btn-secondary" : "btn-outline-secondary"}`}
-                                                                onClick={() => toggleExpanded(inv.transactionId)}
-                                                                disabled={isLoadingThis}
-                                                            >
-                                                                {isLoadingThis ? "Cargando..." : isOpen ? "Ocultar" : "Ver"}
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-sm btn-outline-danger"
-                                                                onClick={() => onInvoicePdf(inv.transactionId)}
-                                                            >
-                                                                PDF
-                                                            </button>
-                                                        </div>
+                                                    <td>{inv.clientName}</td>
+                                                    <td className="text-end fw-bold">${inv.total.toFixed(2)}</td>
+                                                    <td className="text-center">
+                                                        <button
+                                                            className={`btn btn-sm ${expanded.has(inv.transactionId) ? 'btn-success' : 'btn-outline-success'}`}
+                                                            onClick={() => toggleExpanded(inv.transactionId)}
+                                                            disabled={loadingTxId === inv.transactionId}
+                                                        >
+                                                            {loadingTxId === inv.transactionId ? (
+                                                                <span className="spinner-border spinner-border-sm"></span>
+                                                            ) : expanded.has(inv.transactionId) ? "Cerrar" : "Ver Detalles"}
+                                                        </button>
                                                     </td>
                                                 </tr>
 
-                                                {isOpen && (
+                                                {/* FILA EXPANDIBLE: DETALLES DE MATERIALES */}
+                                                {expanded.has(inv.transactionId) && (
                                                     <tr>
-                                                        <td colSpan={4} className="p-0">
-                                                            <div className="p-3">
-                                                                <div className="table-responsive">
-                                                                    <table className="table table-sm table-striped mb-0">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th style={{ width: 70 }}>#</th>
-                                                                                <th>Material</th>
-                                                                                <th style={{ width: 110 }} className="text-end">Cantidad</th>
-                                                                                <th style={{ width: 110 }} className="text-end">Precio</th>
-                                                                                <th style={{ width: 120 }} className="text-end">Subtotal</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            {items.length > 0 ? (
-                                                                                items.map((it, index) => (
-                                                                                    <tr key={it.id ?? `${inv.transactionId}-${it.materialId ?? "mat"}-${index}`}>
-                                                                                        <td>{index + 1}</td>
-                                                                                        <td>{it.materialName || (it.materialId != null ? `Material #${it.materialId}` : "-")}</td>
-                                                                                        <td className="text-end">{Number(it.quantity || 0).toFixed(2)}</td>
-                                                                                        <td className="text-end">{Number(it.price || 0).toFixed(2)}</td>
-                                                                                        <td className="text-end">{Number(it.subtotal || 0).toFixed(2)}</td>
-                                                                                    </tr>
-                                                                                ))
-                                                                            ) : (
-                                                                                <tr>
-                                                                                    <td colSpan={5} className="text-center text-muted">
-                                                                                        {isLoadingThis
-                                                                                            ? "Cargando detalles..."
-                                                                                            : "Sin detalles en esta transacción"}
-                                                                                    </td>
-                                                                                </tr>
-                                                                            )}
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
+                                                        <td colSpan="4" className="bg-light p-0">
+                                                            <div className="p-4 border-start border-success border-4 m-2 bg-white shadow-sm">
+                                                                <h6 className="fw-bold mb-3"><i className="bi bi-box-seam me-2"></i>Materiales de la transacción</h6>
+                                                                <table className="table table-sm table-bordered mb-0">
+                                                                    <thead className="table-dark">
+                                                                    <tr>
+                                                                        <th>Material</th>
+                                                                        <th className="text-end">Cant.</th>
+                                                                        <th className="text-end">Precio</th>
+                                                                        <th className="text-end">Subtotal</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    {(detailsByTx.get(inv.transactionId) || []).map((it, i) => (
+                                                                        <tr key={i}>
+                                                                            <td>{it.materialName}</td>
+                                                                            <td className="text-end">{it.quantity.toFixed(2)}</td>
+                                                                            <td className="text-end">${it.price.toFixed(2)}</td>
+                                                                            <td className="text-end fw-bold">${it.subtotal.toFixed(2)}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
                                                         </td>
                                                     </tr>
                                                 )}
                                             </Fragment>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div className="details-actions">
-                            <button type="button" className="btn btn-danger" onClick={onGeneralPdf}>
-                                <i className="bi bi-file-earmark-pdf" /> {" "}
-                                <span>Reporte general (PDF)</span>
-                            </button>
-
-                            <button type="button" className="btn btn-primary" onClick={onClientPdf}>
-                                <i className="bi bi-person-vcard" /> {" "}
-                                <span>Reporte por cliente (PDF)</span>
-                            </button>
-                        </div>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="4" className="text-center py-4 text-muted">No se encontraron transacciones.</td>
+                                        </tr>
+                                    )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

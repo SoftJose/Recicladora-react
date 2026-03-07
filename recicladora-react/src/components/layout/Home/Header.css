@@ -41,8 +41,7 @@
   box-shadow: none;
 }
 
-/* Bootstrap normalmente pinta el ícono con .navbar-light/.navbar-dark.
-   Como usamos una navbar custom, forzamos el icono para el toggler. */
+
 .navbar-toggler-icon {
   filter: invert(1);
 }
